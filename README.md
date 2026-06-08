@@ -1,36 +1,457 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Euphoria
 
-## Getting Started
+**Trade Market Emotions, Not Charts.**
 
-First, run the development server:
+Euphoria is an AI-powered market psychology platform for BNB Chain. Instead of traditional trading indicators, it analyzes crowd behavior, narratives, momentum, and market emotions through a collaborative multi-agent AI system.
+
+[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https://github.com/your-org/euphoria)
+[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
+[![Next.js](https://img.shields.io/badge/Next.js-16-black)](https://nextjs.org)
+[![TypeScript](https://img.shields.io/badge/TypeScript-5-blue)](https://typescriptlang.org)
+
+---
+
+## Screenshots
+
+> Dashboard — FOMO Radar + Live Market Psychology
+
+![Dashboard](docs/screenshots/dashboard.png)
+
+> Token Analysis — Agent Debate + Judge Decision
+
+![Token Analysis](docs/screenshots/token-analysis.png)
+
+> FOMO Meter — Real-time Crowd Excitement Score
+
+![FOMO Meter](docs/screenshots/fomo-meter.png)
+
+---
+
+## Features
+
+### FOMO Radar
+Scans BNB Chain for narrative-driven momentum. Identifies which themes (AI, Memecoin, RWA, DePIN, Gaming, DeFi) are generating the most crowd excitement in real time.
+
+### AI Agent Debate
+Five specialized AI agents collaborate and debate before producing a trade signal. Watch Crowd Agent argue the bull case while Reverse Agent argues the bear case — then see the Judge decide.
+
+### Narrative Discovery
+Understands *why* markets move, not just that they moved. Each analysis surfaces the human story behind the price action.
+
+### FOMO Meter
+A 0–100 crowd excitement score with five psychological levels:
+
+| Score | Level |
+|---|---|
+| 0–20 | Calm |
+| 20–40 | Interest |
+| 40–60 | Bullish |
+| 60–80 | FOMO |
+| 80–100 | Euphoria |
+
+### Token Analysis Dashboard
+Deep-dive analysis for any BNB Chain token: volume score, momentum score, narrative classification, bubble probability, and final BUY / SELL / WATCH verdict.
+
+### Market Sentiment Analysis
+Aggregated market-wide psychology view — which narratives are dominant, where crowd energy is concentrating, and what the overall market emotional state is.
+
+---
+
+## Architecture
+
+```mermaid
+graph TB
+    subgraph Client["Browser / Next.js"]
+        Dashboard["Dashboard Page"]
+        Radar["FOMO Radar Page"]
+        Token["Token Analysis Page"]
+    end
+
+    subgraph Vercel["Vercel Serverless"]
+        Orchestrator["Agent Orchestrator\n/api/analyze (returns full debate + verdict)"]
+        FOMO["FOMO Index\n/api/fomo (Cron-precomputed)"]
+        Narratives["Narratives\n/api/narratives"]
+    end
+
+    subgraph Agents["AI Agent Pipeline"]
+        Scout["Scout Agent\n(Market Data)"]
+        Narrative["Narrative Agent\n(Why It Moves)"]
+        Crowd["Crowd Agent\n(FOMO Score)"]
+        Reverse["Reverse Agent\n(Bubble Risk)"]
+        Judge["Judge Agent\n(Final Decision)"]
+    end
+
+    subgraph External["External Services"]
+        CMC["CoinMarketCap API"]
+        Dex["DexScreener API"]
+        OR["OpenRouter\n(Gemini 2.5)"]
+    end
+
+    subgraph Data["Data Layer"]
+        Supabase["Supabase PostgreSQL\n(RLS Enabled)"]
+        Privy["Privy Auth\n(Wallet Login)"]
+    end
+
+    Dashboard --> Orchestrator
+    Token --> Orchestrator
+    Radar --> FOMO
+    Radar --> Narratives
+
+    Orchestrator --> Scout
+    Scout --> Narrative
+    Narrative --> Crowd
+    Narrative --> Reverse
+    Crowd --> Judge
+    Reverse --> Judge
+
+    Scout --> Dex
+    Scout -.optional.-> CMC
+    Narrative --> OR
+    Crowd --> OR
+    Reverse --> OR
+    Judge --> OR
+
+    Orchestrator --> Supabase
+    Dashboard --> Privy
+```
+
+---
+
+## Agent System
+
+```mermaid
+sequenceDiagram
+    participant User
+    participant API as /api/analyze
+    participant Orch as Orchestrator
+    participant Scout
+    participant Narr as Narrative
+    participant Crowd
+    participant Rev as Reverse
+    participant Judge
+
+    User->>API: POST { symbol: "TOKEN" }
+    API->>Orch: orchestrate("TOKEN")
+    Orch->>Scout: execute({ symbol })
+    Scout-->>Orch: { volume_score, momentum_score }
+
+    Orch->>Narr: execute(scout)
+    Narr-->>Orch: { narrative, confidence }
+
+    par Crowd ∥ Reverse (both depend only on scout + narrative)
+        Orch->>Crowd: execute(scout, narrative)
+        Orch->>Rev: execute(scout, narrative)
+    end
+    Crowd-->>Orch: { fomo_score }
+    Rev-->>Orch: { bubble_probability }
+
+    Orch->>Judge: execute(scout, narrative, crowd, reverse)
+    Judge-->>Orch: { decision, confidence, reasoning }
+    Orch-->>API: full result (incl. crowd vs reverse debate)
+    API-->>User: JSON response
+```
+
+> The "AI Debate" is the Crowd and Reverse verdicts shown side by side — produced in one `/api/analyze` call, not a second round-trip. There is no separate `/api/debate` LLM pipeline (it would double cost and latency for the same answer).
+
+### Agent Responsibilities
+
+| Agent | Role | Model | Output |
+|---|---|---|---|
+| **Scout** | Fetches market data, calculates volume & momentum scores | Heuristic | `{ volume_score, momentum_score }` |
+| **Narrative** | Classifies the market narrative driving the token | Gemini 2.5 Pro | `{ narrative, confidence }` |
+| **Crowd** | Measures crowd excitement and FOMO intensity | Gemini 2.5 Flash | `{ fomo_score }` |
+| **Reverse** | Detects bubbles and overcrowded trades | Gemini 2.5 Flash | `{ bubble_probability }` |
+| **Judge** | Synthesizes all agents into a final trade signal | Gemini 2.5 Pro | `{ decision, confidence, reasoning }` |
+
+---
+
+## Tech Stack
+
+### Frontend
+| Technology | Version | Purpose |
+|---|---|---|
+| Next.js | 16 | Framework (App Router) |
+| React | 19 | UI Library |
+| TypeScript | 5 | Type Safety |
+| Tailwind CSS | 4 | Styling |
+| shadcn/ui | latest | Component Library |
+| Framer Motion | latest | Animations |
+
+### AI
+| Technology | Purpose |
+|---|---|
+| Vercel AI SDK | AI Integration Layer |
+| OpenRouter | LLM Gateway |
+| Gemini 2.5 Flash | Fast Agent Responses |
+| Gemini 2.5 Pro | Complex Reasoning |
+
+### Backend & Data
+| Technology | Purpose |
+|---|---|
+| Next.js Route Handlers | API Layer |
+| Supabase | PostgreSQL + Row Level Security |
+| Privy | Wallet Authentication |
+
+### Blockchain
+| Technology | Purpose |
+|---|---|
+| BNB Chain | Target Network |
+| Viem | Low-level Chain Interaction |
+| Wagmi | React Hooks for Blockchain |
+
+### Data Sources
+| Technology | Purpose |
+|---|---|
+| CoinMarketCap API | Market Data & Trending Tokens |
+| DexScreener API | DEX Volume & Price Data |
+
+### Infrastructure
+| Technology | Purpose |
+|---|---|
+| Vercel | Hosting, CI/CD, Serverless Functions |
+| Vercel Analytics | User Analytics |
+
+---
+
+## Installation
+
+### Prerequisites
+- Node.js 20+
+- npm 10+
+- A Vercel account
+- API keys (see Environment Variables)
+
+### Clone & Install
+
+```bash
+git clone https://github.com/your-org/euphoria.git
+cd euphoria
+npm install
+```
+
+### Configure Environment
+
+```bash
+cp .env.example .env.local
+```
+
+Edit `.env.local` with your API keys (see Environment Variables section below).
+
+### Install UI Dependencies
+
+```bash
+# Initialize shadcn/ui
+npx shadcn@latest init
+
+# AI — Vercel AI SDK + the official OpenRouter provider
+npm install ai @openrouter/ai-sdk-provider
+
+# UI
+npm install framer-motion clsx tailwind-merge
+
+# Data + Auth
+npm install @supabase/supabase-js
+npm install @privy-io/react-auth @privy-io/node   # react-auth = client, node = server verification
+
+# Validation
+npm install zod
+
+# Blockchain — only needed once you add on-chain reads (wallet balance, etc.).
+# Privy already provides wallet connect, so this can wait until after the MVP.
+npm install viem wagmi @tanstack/react-query
+```
+
+> **Note:** Use `@openrouter/ai-sdk-provider` (`createOpenRouter`), not `@ai-sdk/openai`. Agents call `generateObject()` with Zod schemas for guaranteed structured output. The Privy **server** SDK is `@privy-io/node`, not `@privy-io/server`.
+
+### Database Setup
+
+```bash
+# Apply Supabase migrations
+npx supabase db push
+```
+
+### Run
 
 ```bash
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Open [http://localhost:3000](http://localhost:3000).
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+---
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## Environment Variables
 
-## Learn More
+| Variable | Required | Scope | Description |
+|---|---|---|---|
+| `NEXT_PUBLIC_PRIVY_APP_ID` | ✅ | Client | Privy app id, used by `<PrivyProvider>` |
+| `NEXT_PUBLIC_SUPABASE_URL` | ✅ | Client | Supabase project URL (browser anon client) |
+| `NEXT_PUBLIC_SUPABASE_ANON_KEY` | ✅ | Client | Supabase anon key — safe for client, RLS-gated |
+| `NEXT_PUBLIC_APP_URL` | ⬜ | Client | Public app URL — OG tags, OpenRouter attribution |
+| `OPENROUTER_API_KEY` | ✅ | Server | OpenRouter API key for all LLM access |
+| `DEXSCREENER_API_URL` | ✅ | Server | DexScreener base URL — **primary** BNB Chain data source |
+| `COINMARKETCAP_API_KEY` | ⬜ | Server | **Optional** — trending/market-cap context; tight free quota, app degrades to DexScreener-only without it |
+| `SUPABASE_SERVICE_ROLE_KEY` | ✅ | Server | Supabase service role key — full DB access |
+| `PRIVY_APP_SECRET` | ✅ | Server | Privy app secret for token verification |
+| `PRIVY_VERIFIER_KEY` | ✅ | Server | Privy JWT verification key (`jwtVerificationKey`, skips a network call) |
 
-To learn more about Next.js, take a look at the following resources:
+> ⚠️ Never commit `.env.local`. Only `NEXT_PUBLIC_*` variables reach the browser — everything else is server-only. A `NEXT_PUBLIC_` prefix on a secret leaks it into the client bundle.
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+---
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+## Development
 
-## Deploy on Vercel
+### Commands
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+```bash
+npm run dev      # Start development server (localhost:3000)
+npm run build    # Build for production (also type-checks)
+npm run lint     # Run ESLint
+npm start        # Start production server locally
+```
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+### Project Structure
+
+```
+euphoria/
+├── app/
+│   ├── layout.tsx               # Root layout
+│   ├── page.tsx                 # Landing page
+│   ├── globals.css              # Global styles
+│   ├── dashboard/               # Main dashboard
+│   ├── radar/                   # FOMO Radar
+│   ├── token/[symbol]/          # Token analysis
+│   └── api/                     # Route handlers
+│       ├── analyze/route.ts
+│       ├── fomo/route.ts
+│       ├── narratives/route.ts
+│       └── cron/fomo/route.ts   # Vercel Cron — precompute FOMO index
+├── components/
+│   ├── layout/                  # Header, sidebar
+│   ├── dashboard/               # Dashboard widgets
+│   ├── token/                   # Token page components
+│   ├── agents/                  # Agent display cards
+│   └── ui/                      # Base UI primitives
+├── lib/
+│   ├── agents/                  # Agent logic (pure functions)
+│   │   ├── orchestrator.ts
+│   │   ├── scout.ts
+│   │   ├── narrative.ts
+│   │   ├── crowd.ts
+│   │   ├── reverse.ts
+│   │   ├── judge.ts
+│   │   └── prompts.ts
+│   ├── cmc.ts                   # CoinMarketCap client
+│   ├── dexscreener.ts           # DexScreener client
+│   ├── openrouter.ts            # OpenRouter LLM client
+│   ├── supabase/
+│   ├── privy/
+│   ├── blockchain/
+│   ├── format.ts
+│   └── utils.ts
+├── types/
+├── supabase/migrations/
+└── docs/
+```
+
+---
+
+## Deployment
+
+### Vercel (Recommended)
+
+1. Push to GitHub
+2. Import project in [Vercel Dashboard](https://vercel.com/dashboard)
+3. Add all environment variables in Vercel project settings
+4. Deploy — Vercel handles the rest
+
+### Manual Deploy
+
+```bash
+npm run build
+vercel deploy --prod
+```
+
+### CI/CD
+
+Every push to `main` triggers an automatic production deployment. All pull requests get a preview deployment URL.
+
+---
+
+## Roadmap
+
+```mermaid
+gantt
+    title Euphoria Roadmap
+    dateFormat YYYY-MM-DD
+    section Phase 1 — Foundation
+        Project scaffold         :done, p1a, 2026-06-01, 3d
+        Auth + DB setup          :done, p1b, after p1a, 3d
+        Base layout + design     :done, p1c, after p1b, 2d
+    section Phase 2 — Core Features
+        FOMO Radar               :active, p2a, 2026-06-08, 3d
+        Token Analysis UI        :p2b, after p2a, 3d
+        Narrative Discovery      :p2c, after p2b, 2d
+    section Phase 3 — Agent Intelligence
+        Agent pipeline           :p3a, 2026-06-16, 4d
+        AI Debate UI             :p3b, after p3a, 2d
+        Streaming responses      :p3c, after p3b, 2d
+    section Phase 4 — Trading Features
+        FOMO Meter               :p4a, 2026-06-24, 2d
+        Analysis history         :p4b, after p4a, 2d
+        Portfolio view           :p4c, after p4b, 3d
+    section Phase 5 — Polish
+        Animations               :p5a, 2026-07-01, 2d
+        Mobile layout            :p5b, after p5a, 2d
+        Performance              :p5c, after p5b, 2d
+```
+
+---
+
+## Contributing
+
+### Getting Started
+
+1. Fork the repository
+2. Create a feature branch: `git checkout -b feature/my-feature`
+3. Make your changes
+4. Run checks: `npm run lint && npm run build`
+5. Commit: `git commit -m "feat(scope): description"`
+6. Push: `git push origin feature/my-feature`
+7. Open a Pull Request
+
+### Commit Format
+
+```
+feat(agents): add Scout Agent with CMC integration
+fix(fomo-meter): correct animation direction
+chore(deps): upgrade framer-motion
+docs(readme): update installation steps
+```
+
+### Code Standards
+
+- TypeScript strict mode — no `any`
+- Server Components by default
+- Tailwind only — no inline styles
+- Zod for all API validation
+- Every agent has try/catch with fallback
+
+### Pull Request Requirements
+
+- Clear title following commit format
+- Description of what and why
+- Screenshots for UI changes
+- All CI checks passing
+
+---
+
+## Disclaimer
+
+Euphoria produces **market-psychology signals for research and educational purposes only.** Nothing it outputs is financial, investment, or trading advice. AI agents can be wrong, market data can be stale, and crypto assets are volatile and high-risk. Always do your own research. You are solely responsible for your own decisions.
+
+---
+
+## License
+
+MIT © Euphoria Contributors
