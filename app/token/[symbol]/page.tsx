@@ -17,7 +17,7 @@ import {
 import { Card, CardContent, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Header } from "@/components/layout/header";
-import { Sidebar } from "@/components/layout/sidebar";
+import Sidebar from "@/components/layout/sidebar";
 import { StaggerList, StaggerItem, SpringIn, CountUp } from "@/components/layout/page-animate";
 
 interface TokenPageProps {

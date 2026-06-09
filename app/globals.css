@@ -2,27 +2,146 @@
 
 /* ─── Light Theme Design Tokens ──────────────────────────────── */
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  /* Backgrounds */
+  --bg-app:             #f5f6fa;
+  --bg-surface:         #ffffff;
+  --bg-elevated:        #f0f1f5;
+
+  /* Borders */
+  --border:             rgba(0, 0, 0, 0.07);
+  --border-subtle:      rgba(0, 0, 0, 0.05);
+
+  /* Text */
+  --text-primary:       #0d0d1a;
+  --text-secondary:     #6b6b85;
+  --text-muted:         #a0a0b8;
+
+  /* Agent avatar colors */
+  --agent-scout:        #f97316;
+  --agent-narrative:    #8b5cf6;
+  --agent-crowd:        #3b82f6;
+  --agent-reverse:      #ef4444;
+  --agent-judge:        #10b981;
+
+  /* Trading signals */
+  --signal-buy:         #10b981;
+  --signal-sell:        #ef4444;
+  --signal-watch:       #f59e0b;
+
+  /* FOMO level palette */
+  --fomo-calm:          #10b981;
+  --fomo-interest:      #84cc16;
+  --fomo-bullish:       #f59e0b;
+  --fomo-fomo:          #f97316;
+  --fomo-euphoria:      #ef4444;
+
+  /* Accent */
+  --accent-blue:        #3b82f6;
+  --accent-purple:      #8b5cf6;
+  --accent-emerald:     #10b981;
+  --accent-cyan:        #06b6d4;
+
+  /* Hero orb gradient */
+  --orb-from:           #93c5fd;
+  --orb-mid:            #a5b4fc;
+  --orb-to:             #c4b5fd;
+
+  /* Shadows */
+  --shadow-card:        0 1px 3px rgba(0, 0, 0, 0.06), 0 1px 2px rgba(0, 0, 0, 0.04);
+  --shadow-elevated:    0 4px 12px rgba(0, 0, 0, 0.08);
+  --shadow-orb:         0 0 80px 20px rgba(147, 197, 253, 0.35);
+
+  /* shadcn / legacy var names */
+  --background:         var(--bg-surface);
+  --foreground:         var(--text-primary);
 }
 
 /* ─── Tailwind Theme Extension ──────────────────────────────── */
 @theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  /* Core */
+  --color-background:         var(--bg-surface);
+  --color-foreground:         var(--text-primary);
+
+  /* Background scale */
+  --color-bg-app:             var(--bg-app);
+  --color-bg-base:            var(--bg-app);      /* alias used by "redesign ui" pages */
+  --color-bg-surface:         var(--bg-surface);
+  --color-bg-elevated:        var(--bg-elevated);
+
+  /* Borders */
+  --color-border:             var(--border);
+  --color-border-subtle:      var(--border-subtle);
+
+  /* Text */
+  --color-text-primary:       var(--text-primary);
+  --color-text-secondary:     var(--text-secondary);
+  --color-text-muted:         var(--text-muted);
+
+  /* Agent colors */
+  --color-agent-scout:        var(--agent-scout);
+  --color-agent-narrative:    var(--agent-narrative);
+  --color-agent-crowd:        var(--agent-crowd);
+  --color-agent-reverse:      var(--agent-reverse);
+  --color-agent-judge:        var(--agent-judge);
+
+  /* Signals */
+  --color-signal-buy:         var(--signal-buy);
+  --color-signal-sell:        var(--signal-sell);
+  --color-signal-watch:       var(--signal-watch);
+
+  /* Accents */
+  --color-accent-blue:        var(--accent-blue);
+  --color-accent-purple:      var(--accent-purple);
+  --color-accent-emerald:     var(--accent-emerald);
+  --color-accent-cyan:        var(--accent-cyan);
+
+  /* Fonts */
+  --font-sans:                var(--font-geist-sans);
+  --font-mono:                var(--font-geist-mono);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+/* ─── Base Styles ───────────────────────────────────────────── */
+html {
+  background: var(--bg-app);
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  background: var(--bg-app);
+  color: var(--text-primary);
+  font-family: var(--font-geist-sans), system-ui, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* ─── Glass Card Utilities ──────────────────────────────────── */
+/* Used by components/ui/card.tsx */
+@layer utilities {
+  .glass {
+    background: rgba(255, 255, 255, 0.85);
+    border: 1px solid var(--border);
+    backdrop-filter: blur(8px);
+    box-shadow: var(--shadow-card);
+  }
+
+  .glass-elevated {
+    background: #ffffff;
+    border: 1px solid var(--border);
+    box-shadow: var(--shadow-elevated);
+  }
+}
+
+/* ─── Scrollbar ─────────────────────────────────────────────── */
+::-webkit-scrollbar {
+  width: 4px;
+  height: 4px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: rgba(0, 0, 0, 0.12);
+  border-radius: 2px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(0, 0, 0, 0.2);
 }
