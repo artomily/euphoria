@@ -2,129 +2,27 @@
 
 /* ─── Light Theme Design Tokens ──────────────────────────────── */
 :root {
-  /* Backgrounds */
-  --bg-app:             #f5f6fa;
-  --bg-surface:         #ffffff;
-  --bg-elevated:        #f9f9fc;
-
-  /* Borders */
-  --border:             rgba(0, 0, 0, 0.07);
-  --border-subtle:      rgba(0, 0, 0, 0.04);
-
-  /* Text */
-  --text-primary:       #0d0d1a;
-  --text-secondary:     #6b6b85;
-  --text-muted:         #a0a0b8;
-
-  /* Agent avatar colors */
-  --agent-scout:        #f97316;
-  --agent-narrative:    #8b5cf6;
-  --agent-crowd:        #3b82f6;
-  --agent-reverse:      #ef4444;
-  --agent-judge:        #10b981;
-
-  /* Trading signals */
-  --signal-buy:         #10b981;
-  --signal-sell:        #ef4444;
-  --signal-watch:       #f59e0b;
-
-  /* FOMO level palette */
-  --fomo-calm:          #10b981;
-  --fomo-interest:      #84cc16;
-  --fomo-bullish:       #f59e0b;
-  --fomo-fomo:          #f97316;
-  --fomo-euphoria:      #ef4444;
-
-  /* Hero orb gradient */
-  --orb-from:           #93c5fd;
-  --orb-mid:            #a5b4fc;
-  --orb-to:             #c4b5fd;
-
-  /* Accent */
-  --accent-blue:        #3b82f6;
-  --accent-purple:      #8b5cf6;
-  --accent-emerald:     #10b981;
-  --accent-cyan:        #06b6d4;
-
-  /* Shadows */
-  --shadow-card:        0 1px 3px rgba(0, 0, 0, 0.06), 0 1px 2px rgba(0, 0, 0, 0.04);
-  --shadow-elevated:    0 4px 12px rgba(0, 0, 0, 0.08);
-  --shadow-orb:         0 0 80px 20px rgba(147, 197, 253, 0.35);
-
-  /* shadcn/ui overrides (light) */
-  --background:         var(--bg-surface);
-  --foreground:         var(--text-primary);
-  --card:               var(--bg-surface);
-  --card-foreground:    var(--text-primary);
-  --popover:            var(--bg-surface);
-  --popover-foreground: var(--text-primary);
-  --primary:            #3b82f6;
-  --primary-foreground: #ffffff;
-  --secondary:          #f5f6fa;
-  --secondary-foreground: var(--text-primary);
-  --muted:              #f5f6fa;
-  --muted-foreground:   var(--text-secondary);
-  --accent:             #eff6ff;
-  --accent-foreground:  #1d4ed8;
-  --destructive:        #ef4444;
-  --destructive-foreground: #ffffff;
-  --border-color:       rgba(0, 0, 0, 0.07);
-  --input:              rgba(0, 0, 0, 0.07);
-  --ring:               #3b82f6;
-  --radius:             0.75rem;
+  --background: #ffffff;
+  --foreground: #171717;
 }
 
 /* ─── Tailwind Theme Extension ──────────────────────────────── */
 @theme inline {
-  --color-background:       var(--bg-surface);
-  --color-foreground:       var(--text-primary);
-  --color-bg-app:           var(--bg-app);
-  --color-bg-surface:       var(--bg-surface);
-  --color-bg-elevated:      var(--bg-elevated);
-  --color-text-primary:     var(--text-primary);
-  --color-text-secondary:   var(--text-secondary);
-  --color-text-muted:       var(--text-muted);
-  --color-agent-scout:      var(--agent-scout);
-  --color-agent-narrative:  var(--agent-narrative);
-  --color-agent-crowd:      var(--agent-crowd);
-  --color-agent-reverse:    var(--agent-reverse);
-  --color-agent-judge:      var(--agent-judge);
-  --color-signal-buy:       var(--signal-buy);
-  --color-signal-sell:      var(--signal-sell);
-  --color-signal-watch:     var(--signal-watch);
-  --color-accent-blue:      var(--accent-blue);
-  --color-accent-purple:    var(--accent-purple);
-  --color-accent-emerald:   var(--accent-emerald);
-  --color-accent-cyan:      var(--accent-cyan);
-  --font-sans:              var(--font-geist-sans);
-  --font-mono:              var(--font-geist-mono);
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --font-sans: var(--font-geist-sans);
+  --font-mono: var(--font-geist-mono);
 }
 
-/* ─── Base Styles ───────────────────────────────────────────── */
-html {
-  background: var(--bg-app);
+@media (prefers-color-scheme: dark) {
+  :root {
+    --background: #0a0a0a;
+    --foreground: #ededed;
+  }
 }
 
 body {
-  background: var(--bg-app);
-  color: var(--text-primary);
-  font-family: var(--font-geist-sans), system-ui, sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-}
-
-/* ─── Scrollbar ─────────────────────────────────────────────── */
-::-webkit-scrollbar {
-  width: 4px;
-  height: 4px;
-}
-::-webkit-scrollbar-track {
-  background: transparent;
-}
-::-webkit-scrollbar-thumb {
-  background: rgba(0, 0, 0, 0.12);
-  border-radius: 2px;
-}
-::-webkit-scrollbar-thumb:hover {
-  background: rgba(0, 0, 0, 0.2);
+  background: var(--background);
+  color: var(--foreground);
+  font-family: Arial, Helvetica, sans-serif;
 }

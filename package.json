@@ -6,10 +6,14 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint"
+    "lint": "eslint",
+    "check": "tsc --noEmit",
+    "test": "echo \"No tests yet — add Vitest per TASK-107\" && exit 0"
   },
   "dependencies": {
     "@openrouter/ai-sdk-provider": "^2.9.0",
+    "@privy-io/node": "^0.21.0",
+    "@privy-io/react-auth": "^3.29.2",
     "@supabase/supabase-js": "^2.108.0",
     "ai": "^6.0.197",
     "clsx": "^2.1.1",

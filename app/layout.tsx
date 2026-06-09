@@ -5,17 +5,28 @@ import "./globals.css";
 const geistSans = Geist({
   variable: "--font-geist-sans",
   subsets: ["latin"],
+  display: "swap",
 });
 
 const geistMono = Geist_Mono({
   variable: "--font-geist-mono",
   subsets: ["latin"],
+  display: "swap",
 });
 
 export const metadata: Metadata = {
-  title: "Euphoria — Trade Market Emotions, Not Charts",
+  title: {
+    default: "Euphoria — Trade Market Emotions, Not Charts",
+    template: "%s | Euphoria",
+  },
   description:
-    "AI-powered market psychology platform for BNB Chain. FOMO scores, narrative analysis, and agent debates to help you understand crowd behavior.",
+    "AI-powered market psychology platform for BNB Chain traders. Quantify crowd FOMO, identify narratives, and get AI debate verdicts before you trade.",
+  keywords: ["BNB Chain", "DeFi", "market psychology", "FOMO", "AI trading", "crypto"],
+  openGraph: {
+    title: "Euphoria — Trade Market Emotions, Not Charts",
+    description: "AI-powered market psychology for BNB Chain traders.",
+    type: "website",
+  },
 };
 
 export default function RootLayout({
@@ -28,9 +39,7 @@ export default function RootLayout({
       lang="en"
       className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
     >
-      <body className="min-h-full bg-[var(--bg-app)] text-[var(--text-primary)]">
-        {children}
-      </body>
+      <body className="min-h-full flex flex-col">{children}</body>
     </html>
   );
 }
