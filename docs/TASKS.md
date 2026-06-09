@@ -1097,3 +1097,196 @@
   - Alert triggered when FOMO score crosses 70
   - Delivered via browser push or email
   - Vercel Cron handles periodic checks
+
+---
+
+## Phase 0: Design System (Light Theme)
+
+> **Goal:** Establish the light theme design language inspired by the modern agentic dashboard reference. Overrides the original dark-only system per user direction.
+
+**Design Reference:** Two-column agentic dashboard — soft gray app shell, white cards, colored agent avatars, status chips, animated orb hero, quick-action chips, floating search bar.
+
+---
+
+**TASK-109: Define light theme design token system**
+- Priority: P0 | Complexity: S
+- Dependencies: None
+- Acceptance Criteria:
+  - `app/globals.css` replaced with full light token set
+  - Background hierarchy: `--bg-app` (#f5f6fa), `--bg-surface` (#ffffff), `--bg-elevated` (#f9f9fc)
+  - Text scale: `--text-primary`, `--text-secondary`, `--text-muted`
+  - Agent avatar colors: `--agent-scout` (orange), `--agent-narrative` (purple), `--agent-crowd` (blue), `--agent-reverse` (red), `--agent-judge` (emerald)
+  - Signal colors: `--signal-buy`, `--signal-sell`, `--signal-watch`
+  - Orb gradient: `--orb-from`, `--orb-mid`, `--orb-to`
+  - Shadow tokens: `--shadow-card`, `--shadow-elevated`, `--shadow-orb`
+  - shadcn CSS variable overrides for light mode
+  - Dark-mode media query removed
+
+**TASK-110: Build icon-only sidebar navigation**
+- Priority: P0 | Complexity: M
+- Dependencies: TASK-109, TASK-022
+- Acceptance Criteria:
+  - `components/layout/sidebar.tsx` renders 48px-wide icon-only nav
+  - Icons: Home (Dashboard), Radar, History — using lucide-react
+  - Active state: 3px left accent bar + `text-primary`; inactive: `text-secondary`
+  - White background, subtle right border (`var(--border)`)
+  - Bottom slot for wallet avatar / settings icon
+  - Responsive: collapses to bottom tab bar on mobile
+
+**TASK-111: Build two-column app layout shell**
+- Priority: P0 | Complexity: M
+- Dependencies: TASK-110
+- Acceptance Criteria:
+  - `components/layout/two-column-layout.tsx` renders sidebar + left feed (340px) + right main (flex-1)
+  - Left feed and right main have independent scroll contexts (`overflow-y-auto`)
+  - Full-height layout (`h-screen`)
+  - Left feed has subtle right border separator
+  - On mobile: stacks to single column, sidebar becomes bottom nav
+
+**TASK-112: Build agent activity card component**
+- Priority: P0 | Complexity: L
+- Dependencies: TASK-109, TASK-022
+- Acceptance Criteria:
+  - `components/agents/agent-activity-card.tsx` is the base card used in the left feed
+  - Props: `agentName`, `agentRole`, `agentType` (scout/narrative/crowd/reverse/judge), `status` (pending/running/complete/error), `children`
+  - Colored 36px avatar circle with agent icon; color from `--agent-{type}` token
+  - Status chip: gray=pending, blue=running (animated dot), green=complete, red=error
+  - White bg, `rounded-xl`, `shadow-card`, border `var(--border)`
+  - Slot for per-agent metric content and optional sparkline
+
+**TASK-113: Build greeting header component**
+- Priority: P1 | Complexity: S
+- Dependencies: TASK-109
+- Acceptance Criteria:
+  - `components/layout/greeting.tsx` is a client component
+  - Renders time-based greeting: "Good Morning / Afternoon / Evening, [name]"
+  - Date displayed right-aligned (e.g., "Tuesday, May 14")
+  - Subtitle: market status or tagline (e.g., "3 narratives trending on BNB Chain")
+  - Falls back to "Trader" when user is not authenticated
+
+**TASK-114: Build FOMO orb hero visual**
+- Priority: P1 | Complexity: M
+- Dependencies: TASK-109
+- Acceptance Criteria:
+  - `components/dashboard/fomo-orb.tsx` is a client component
+  - Animated radial gradient sphere using CSS + Framer Motion
+  - Base state: blue/indigo tones (`--orb-from` → `--orb-to`)
+  - Color shifts based on FOMO level prop: calm=blue, fomo=purple, euphoria=red
+  - Slow breathing scale animation (1.0 → 1.04 → 1.0, 4s loop)
+  - Soft glow shadow (`--shadow-orb`)
+  - FOMO level label and score displayed beneath the orb
+
+**TASK-115: Build quick-analysis chip bar**
+- Priority: P1 | Complexity: M
+- Dependencies: TASK-109
+- Acceptance Criteria:
+  - `components/dashboard/quick-chips.tsx` is a client component
+  - Horizontal scrollable pill row of popular BNB tokens: BNB, CAKE, BTC, ETH, PEPE, WRX
+  - Each chip: `bg-gray-100 rounded-full px-3 py-1 text-sm`, hover: `bg-gray-200`
+  - Click triggers `router.push('/token/[symbol]')`
+  - No wrapping; `overflow-x-auto` with hidden scrollbar
+
+**TASK-116: Build floating token search bar**
+- Priority: P0 | Complexity: M
+- Dependencies: TASK-109
+- Acceptance Criteria:
+  - `components/token/token-search-bar.tsx` is a client component
+  - Pill-shaped input: white bg, `rounded-full`, `shadow-elevated`, border `var(--border)`
+  - Search icon (lucide) on left; "Analyze" button on right
+  - Placeholder: "Enter token symbol (e.g. CAKE, BNB)"
+  - On submit: navigates to `/token/[symbol]` (uppercased)
+  - Keyboard: Enter submits; Escape clears
+
+**TASK-117: Redesign landing page with two-column hero layout**
+- Priority: P1 | Complexity: L
+- Dependencies: TASK-113, TASK-114, TASK-115, TASK-116
+- Acceptance Criteria:
+  - `app/page.tsx` replaced with new light landing page
+  - Left column: Euphoria logo/wordmark, tagline "Trade Market Emotions, Not Charts", 4 feature highlight cards (FOMO Radar, AI Debate, Narrative Discovery, FOMO Meter)
+  - Right column: greeting, animated orb, quick chips, floating search bar
+  - "Connect Wallet" CTA in top-right nav area
+  - No wallet required to view landing page
+  - Responsive: stacks to single column on mobile
+
+**TASK-118: Build dashboard page with left feed + right hero**
+- Priority: P0 | Complexity: L
+- Dependencies: TASK-111, TASK-112, TASK-113, TASK-114, TASK-115, TASK-116
+- Acceptance Criteria:
+  - `app/dashboard/page.tsx` uses `TwoColumnLayout`
+  - Left feed: recent agent activity cards (placeholder data until agents are wired)
+  - Right panel: greeting header, FOMO orb (shows current global level), quick chips, floating search bar
+  - Empty/first-visit state: orb shows "AI is ready" label, chips prompt popular tokens
+  - Skeleton loaders in left feed while data loads
+
+**TASK-119: Build inline sparkline chart**
+- Priority: P2 | Complexity: M
+- Dependencies: TASK-109
+- Acceptance Criteria:
+  - `components/ui/sparkline.tsx` renders a tiny SVG polyline (~64×20px)
+  - Props: `data: number[]`, `color?: string`
+  - Normalized to fit within the SVG viewport
+  - No external chart library — pure SVG
+  - Used in Scout card (volume trend) and optionally Narrative card
+
+**TASK-120: Build inline progress bar metric**
+- Priority: P1 | Complexity: S
+- Dependencies: TASK-109
+- Acceptance Criteria:
+  - `components/ui/score-bar.tsx` renders a labeled progress bar
+  - Props: `label: string`, `value: number` (0–100), `color?: string`
+  - Animated fill on mount (Framer Motion, 0 → value over 0.8s)
+  - Color auto-derived from value: ≥70=green, ≥40=amber, <40=red (overridable)
+  - Score shown as `value/100` in Geist Mono to the right
+
+**TASK-121: Redesign narrative card for light theme**
+- Priority: P1 | Complexity: M
+- Dependencies: TASK-109, TASK-031, TASK-120
+- Acceptance Criteria:
+  - `components/dashboard/narrative-card.tsx` rebuilt for light theme
+  - White card, 4px left-border accent colored per narrative category
+  - Narrative name and heat score in header
+  - `ScoreBar` component for heat visualization
+  - Token pills (top 3) with subtle gray bg
+
+**TASK-122: Redesign FOMO Radar page for light theme**
+- Priority: P1 | Complexity: M
+- Dependencies: TASK-121, TASK-032
+- Acceptance Criteria:
+  - `app/radar/page.tsx` updated to use light card grid
+  - 3-column grid desktop, 1-column mobile
+  - Global FOMO index shown as large number with `ScoreBar` at top
+  - Each `NarrativeCard` uses `--signal-*` color per heat level
+  - Page header fits within the `TwoColumnLayout` right panel
+
+**TASK-123: Build agent execution timeline component**
+- Priority: P1 | Complexity: L
+- Dependencies: TASK-112, TASK-045, TASK-056
+- Acceptance Criteria:
+  - `components/agents/agent-timeline.tsx` renders a vertical step feed
+  - Steps: Scout → Narrative → [Crowd ∥ Reverse] → Judge
+  - Each step materializes as an `AgentActivityCard` as it completes
+  - Running step: animated spinner on avatar; completed: checkmark badge
+  - Timeline appears in the left feed panel of the token analysis page
+
+**TASK-124: Redesign Judge decision card for light theme**
+- Priority: P0 | Complexity: L
+- Dependencies: TASK-053, TASK-109
+- Acceptance Criteria:
+  - `components/token/judge-decision.tsx` rebuilt for light theme
+  - Large verdict badge: BUY=emerald bg, SELL=red bg, WATCH=amber bg; white text
+  - Confidence shown as arc/radial progress + large percentage number
+  - Bull case and Bear case as side-by-side summary cards below the badge
+  - "Key Insight" highlight card with accent-blue left border
+  - "Share Analysis" ghost button at bottom
+  - Scale-in spring animation on mount (Framer Motion)
+
+**TASK-125: Update shadcn component overrides for light theme**
+- Priority: P0 | Complexity: M
+- Dependencies: TASK-002, TASK-109
+- Acceptance Criteria:
+  - All shadcn base components (`button`, `badge`, `input`, `card`, `skeleton`) use light token set
+  - `Button` primary variant: blue bg (`--accent-blue`), white text
+  - `Badge` variants: `buy` (emerald), `sell` (red), `watch` (amber), `neutral` (gray)
+  - `Input` component: white bg, `var(--border)` border, blue focus ring
+  - `Card` component: white bg, `shadow-card`, `rounded-xl`
+  - No dark mode CSS variables needed
