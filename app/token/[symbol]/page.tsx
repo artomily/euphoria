@@ -207,7 +207,7 @@ export default async function TokenPage({ params }: TokenPageProps) {
                     Volume is 3.2× above the 7-day average. Multi-timeframe momentum is positive across 1h, 4h, and 24h windows.
                   </p>
                   <div className="mt-4 pt-3 border-t border-border-subtle">
-                    <DataSources sources={AGENT_SOURCES.scout} variant="compact" />
+                    <DataSources sources={AGENT_SOURCES.scout} variant="detailed" />
                   </div>
                 </CardContent>
               </Card>
@@ -226,7 +226,7 @@ export default async function TokenPage({ params }: TokenPageProps) {
                   </div>
                   <p className="text-xs text-text-secondary leading-relaxed">{data.narrative_explanation}</p>
                   <div className="mt-4 pt-3 border-t border-border-subtle">
-                    <DataSources sources={AGENT_SOURCES.narrative} variant="compact" />
+                    <DataSources sources={AGENT_SOURCES.narrative} variant="detailed" />
                   </div>
                 </CardContent>
               </Card>
@@ -257,7 +257,7 @@ export default async function TokenPage({ params }: TokenPageProps) {
                     ))}
                   </ul>
                   <div className="mt-4 pt-3 border-t border-border-subtle">
-                    <DataSources sources={AGENT_SOURCES.crowd} variant="compact" />
+                    <DataSources sources={AGENT_SOURCES.crowd} variant="detailed" />
                   </div>
                 </CardContent>
               </Card>
@@ -285,7 +285,7 @@ export default async function TokenPage({ params }: TokenPageProps) {
                     ))}
                   </ul>
                   <div className="mt-4 pt-3 border-t border-border-subtle">
-                    <DataSources sources={AGENT_SOURCES.reverse} variant="compact" />
+                    <DataSources sources={AGENT_SOURCES.reverse} variant="detailed" />
                   </div>
                 </CardContent>
               </Card>
