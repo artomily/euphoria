@@ -7,6 +7,8 @@ import {
   Gavel,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { AGENT_SOURCES } from "@/lib/data-sources";
+import DataSources from "./data-sources";
 
 type AgentType = "scout" | "narrative" | "crowd" | "reverse" | "judge";
 type AgentStatus = "pending" | "running" | "complete" | "error";
@@ -15,6 +17,8 @@ interface AgentActivityCardProps {
   agentType: AgentType;
   status?: AgentStatus;
   children?: ReactNode;
+  /** Show the data-source transparency row for this agent. */
+  showSources?: boolean;
   className?: string;
 }
 
@@ -40,11 +44,13 @@ export default function AgentActivityCard({
   agentType,
   status = "pending",
   children,
+  showSources = false,
   className,
 }: AgentActivityCardProps) {
   const agent = agentConfig[agentType];
   const Icon = agent.icon;
   const s = statusConfig[status];
+  const sources = AGENT_SOURCES[agentType];
 
   return (
     <div
@@ -81,6 +87,13 @@ export default function AgentActivityCard({
       {children && (
         <div className="mt-3 pt-3 border-t border-[var(--border-subtle)]">
           {children}
+        </div>
+      )}
+
+      {/* Data-source transparency */}
+      {showSources && sources.length > 0 && (
+        <div className="mt-3 pt-3 border-t border-[var(--border-subtle)]">
+          <DataSources sources={sources} variant="compact" />
         </div>
       )}
     </div>

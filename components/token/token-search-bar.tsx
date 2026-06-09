@@ -2,8 +2,9 @@
 
 import { useState, FormEvent, KeyboardEvent } from "react";
 import { useRouter } from "next/navigation";
-import { Search, ChevronDown } from "lucide-react";
+import { Search, ChevronDown, Scale } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { isPolymarketUrl, parsePolymarketSlug } from "@/lib/predictions";
 
 interface TokenSearchBarProps {
   className?: string;
@@ -13,13 +14,25 @@ export default function TokenSearchBar({ className }: TokenSearchBarProps) {
   const [value, setValue] = useState("");
   const router = useRouter();
 
+  // A pasted Polymarket link switches the bar into "Scan FOMO" mode.
+  const isPolymarket = isPolymarketUrl(value);
+
   function handleSubmit(e: FormEvent) {
     e.preventDefault();
-    const symbol = value.trim().toUpperCase();
-    if (symbol) {
-      setValue("");
-      router.push(`/token/${symbol}`);
+    const raw = value.trim();
+    if (!raw) return;
+
+    if (isPolymarket) {
+      const slug = parsePolymarketSlug(raw);
+      if (slug) {
+        setValue("");
+        router.push(`/predictions?m=${encodeURIComponent(slug)}`);
+        return;
+      }
     }
+
+    setValue("");
+    router.push(`/token/${raw.toUpperCase()}`);
   }
 
   function handleKeyDown(e: KeyboardEvent<HTMLInputElement>) {
@@ -38,14 +51,22 @@ export default function TokenSearchBar({ className }: TokenSearchBarProps) {
         className
       )}
     >
-      <Search size={15} className="text-[var(--text-muted)] shrink-0" />
+      {isPolymarket ? (
+        <Scale size={15} className="text-blue-500 shrink-0" aria-hidden />
+      ) : (
+        <Search size={15} className="text-[var(--text-muted)] shrink-0" aria-hidden />
+      )}
 
+      <label htmlFor="token-search" className="sr-only">
+        Token symbol or Polymarket link
+      </label>
       <input
+        id="token-search"
         type="text"
         value={value}
         onChange={(e) => setValue(e.target.value)}
         onKeyDown={handleKeyDown}
-        placeholder="Ask AI or give instructions..."
+        placeholder="Search a token or paste a Polymarket link…"
         className="flex-1 bg-transparent text-sm text-[var(--text-primary)] placeholder:text-[var(--text-muted)] outline-none min-w-0"
       />
 
@@ -62,13 +83,14 @@ export default function TokenSearchBar({ className }: TokenSearchBarProps) {
       <button
         type="submit"
         className={cn(
-          "shrink-0 px-2.5 py-1 rounded-full text-xs font-medium transition-all",
+          "shrink-0 px-2.5 py-1 rounded-full text-xs font-medium transition-colors",
+          "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-400/40",
           value.trim()
             ? "bg-blue-500 text-white hover:bg-blue-600"
             : "bg-[var(--bg-elevated)] text-[var(--text-secondary)] hover:bg-gray-200"
         )}
       >
-        {value.trim() ? "Analyze" : "Fast"}
+        {isPolymarket ? "Scan FOMO" : value.trim() ? "Analyze" : "Fast"}
       </button>
     </form>
   );
