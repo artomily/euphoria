@@ -19,6 +19,8 @@ import { Badge } from "@/components/ui/badge";
 import { Header } from "@/components/layout/header";
 import Sidebar from "@/components/layout/sidebar";
 import { StaggerList, StaggerItem, SpringIn, CountUp } from "@/components/layout/page-animate";
+import DataSources from "@/components/agents/data-sources";
+import { AGENT_SOURCES } from "@/lib/data-sources";
 
 interface TokenPageProps {
   params: Promise<{ symbol: string }>;
@@ -204,6 +206,9 @@ export default async function TokenPage({ params }: TokenPageProps) {
                   <p className="text-xs text-text-muted mt-4 leading-relaxed">
                     Volume is 3.2× above the 7-day average. Multi-timeframe momentum is positive across 1h, 4h, and 24h windows.
                   </p>
+                  <div className="mt-4 pt-3 border-t border-border-subtle">
+                    <DataSources sources={AGENT_SOURCES.scout} variant="compact" />
+                  </div>
                 </CardContent>
               </Card>
 
@@ -220,6 +225,9 @@ export default async function TokenPage({ params }: TokenPageProps) {
                     <span className="font-mono text-sm text-text-secondary">{data.narrative_confidence}% confident</span>
                   </div>
                   <p className="text-xs text-text-secondary leading-relaxed">{data.narrative_explanation}</p>
+                  <div className="mt-4 pt-3 border-t border-border-subtle">
+                    <DataSources sources={AGENT_SOURCES.narrative} variant="compact" />
+                  </div>
                 </CardContent>
               </Card>
               </StaggerItem>
@@ -248,6 +256,9 @@ export default async function TokenPage({ params }: TokenPageProps) {
                       </li>
                     ))}
                   </ul>
+                  <div className="mt-4 pt-3 border-t border-border-subtle">
+                    <DataSources sources={AGENT_SOURCES.crowd} variant="compact" />
+                  </div>
                 </CardContent>
               </Card>
               </StaggerItem>
@@ -273,6 +284,9 @@ export default async function TokenPage({ params }: TokenPageProps) {
                       </li>
                     ))}
                   </ul>
+                  <div className="mt-4 pt-3 border-t border-border-subtle">
+                    <DataSources sources={AGENT_SOURCES.reverse} variant="compact" />
+                  </div>
                 </CardContent>
               </Card>
               </StaggerItem>

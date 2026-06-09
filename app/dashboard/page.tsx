@@ -30,7 +30,7 @@ function DemoFeed() {
         </div>
       </AgentActivityCard>
 
-      <AgentActivityCard agentType="scout" status="complete">
+      <AgentActivityCard agentType="scout" status="complete" showSources>
         <div className="flex flex-col gap-2.5">
           <p className="text-xs text-[var(--text-secondary)]">CAKE/BNB · 24 data points processed</p>
           <ScoreBar label="Volume Score" value={82} />
@@ -38,7 +38,7 @@ function DemoFeed() {
         </div>
       </AgentActivityCard>
 
-      <AgentActivityCard agentType="narrative" status="complete">
+      <AgentActivityCard agentType="narrative" status="complete" showSources>
         <div className="flex items-center justify-between">
           <span className="text-xs text-[var(--text-secondary)]">Narrative detected</span>
           <span className="px-2.5 py-0.5 rounded-full text-xs font-semibold bg-violet-50 text-violet-700 border border-violet-100">
@@ -47,7 +47,7 @@ function DemoFeed() {
         </div>
       </AgentActivityCard>
 
-      <AgentActivityCard agentType="crowd" status="running">
+      <AgentActivityCard agentType="crowd" status="running" showSources>
         <p className="text-xs text-[var(--text-secondary)]">Analyzing PEPE crowd sentiment…</p>
       </AgentActivityCard>
     </div>
