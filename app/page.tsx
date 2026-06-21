@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { Radio, Users, Scale, ShieldCheck, ArrowRight, Zap } from "lucide-react";
-import FomoOrb from "@/components/dashboard/fomo-orb";
+import HeroVideo from "@/components/dashboard/hero-video";
 import QuickChips from "@/components/dashboard/quick-chips";
 import TokenSearchBar from "@/components/token/token-search-bar";
 import DataSources from "@/components/agents/data-sources";
@@ -173,13 +173,11 @@ export default function LandingPage() {
           </p>
         </div>
 
-        {/* Orb — hero centrepiece */}
+        {/* Interactive video — hero centrepiece (move your cursor over it) */}
         <div className="flex items-center justify-center py-6 w-full">
-          <FomoOrb
-            level="ready"
-            label="AI is ready"
-            sublabel="Search a token or paste a Polymarket link to begin"
-          />
+          <div className="relative w-full max-w-3xl aspect-video rounded-2xl overflow-hidden border border-[var(--border)] shadow-[var(--shadow-elevated)] bg-black cursor-crosshair">
+            <HeroVideo src="/hero.mp4" />
+          </div>
         </div>
 
         {/* Search + chips */}
