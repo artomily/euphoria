@@ -2,33 +2,18 @@
 
 **Trade Market Emotions, Not Charts.**
 
-Euphoria is an AI-powered market psychology platform for BNB Chain. Instead of traditional trading indicators, it analyzes crowd behavior, narratives, momentum, and market emotions through a collaborative multi-agent AI system.
+Retail traders on BNB Chain don't lose money for lack of charts — they lose by **buying euphoria and selling fear.** Euphoria is the instrument that measures that emotion. It's a multi-agent **market-psychology engine** that quantifies crowd FOMO, narrative, and bubble risk, then turns them into BUY / SELL / WATCH signals — and ships the same thesis as a **deterministic, backtestable Strategy Skill** that beats buy & hold with 2–4× smaller drawdowns.
+
+Instead of RSI and candlesticks, Euphoria reads the one signal nobody else has instrumented: **how the crowd feels.**
 
 > 🏆 **Built for [BNB Hack: AI Trading Agent Edition](https://dorahacks.io/hackathon/bnbhack-twt-cmc)** (CoinMarketCap × Trust Wallet × BNB Chain) — **Track 2: Strategy Skills.**
 > Euphoria's psychology thesis ships as a deterministic, **backtestable Strategy Skill** (the [`euphoria-strategy`](packages/euphoria-strategy) npm package) that beats buy & hold with far lower drawdown. Sponsor capability: **CoinMarketCap** market data.
 >
 > 🎬 Demo video: [`demo/euphoria-demo.mp4`](demo/euphoria-demo.mp4)
 
-[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https://github.com/your-org/euphoria)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 [![Next.js](https://img.shields.io/badge/Next.js-16-black)](https://nextjs.org)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5-blue)](https://typescriptlang.org)
-
----
-
-## Screenshots
-
-> Dashboard — FOMO Radar + Live Market Psychology
-
-![Dashboard](docs/screenshots/dashboard.png)
-
-> Token Analysis — Agent Debate + Judge Decision
-
-![Token Analysis](docs/screenshots/token-analysis.png)
-
-> FOMO Meter — Real-time Crowd Excitement Score
-
-![FOMO Meter](docs/screenshots/fomo-meter.png)
 
 ---
 
@@ -266,7 +251,7 @@ The in-app backtest UI (`/backtest`) and `GET /api/backtest?symbol=CAKE` run thi
 ### Clone & Install
 
 ```bash
-git clone https://github.com/your-org/euphoria.git
+git clone https://github.com/artomily/euphoria.git
 cd euphoria
 npm install
 ```
