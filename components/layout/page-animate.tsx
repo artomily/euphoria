@@ -91,15 +91,13 @@ interface CountUpProps {
  */
 export function CountUp({ value, duration = 1.4, className }: CountUpProps) {
   const reduced = useReducedMotion();
-  const [display, setDisplay] = useState(reduced ? value : 0);
+  const [display, setDisplay] = useState(0);
   const frameRef = useRef<number | null>(null);
   const startRef = useRef<number | null>(null);
 
   useEffect(() => {
-    if (reduced) {
-      setDisplay(value);
-      return;
-    }
+    // Reduced motion: render the final value directly (see return), no animation.
+    if (reduced) return;
     const animate = (ts: number) => {
       if (!startRef.current) startRef.current = ts;
       const elapsed = (ts - startRef.current) / 1000;
@@ -119,7 +117,7 @@ export function CountUp({ value, duration = 1.4, className }: CountUpProps) {
 
   return (
     <span className={className} style={{ fontVariantNumeric: "tabular-nums" }}>
-      {display}
+      {reduced ? value : display}
     </span>
   );
 }

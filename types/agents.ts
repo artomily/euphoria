@@ -4,6 +4,7 @@ export interface ScoutInput {
 
 export interface ScoutOutput {
   symbol: string;
+  name: string;
   price: number;
   price_change_24h: number;
   volume_24h: number;
