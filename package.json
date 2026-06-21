@@ -11,6 +11,7 @@
     "test": "echo \"No tests yet — add Vitest per TASK-107\" && exit 0"
   },
   "dependencies": {
+    "@ai-sdk/openai-compatible": "^2.0.51",
     "@openrouter/ai-sdk-provider": "^2.9.0",
     "@privy-io/node": "^0.21.0",
     "@privy-io/react-auth": "^3.29.2",

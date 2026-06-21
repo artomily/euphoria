@@ -21,6 +21,11 @@ import Sidebar from "@/components/layout/sidebar";
 import { StaggerList, StaggerItem, SpringIn, CountUp } from "@/components/layout/page-animate";
 import DataSources from "@/components/agents/data-sources";
 import { AGENT_SOURCES } from "@/lib/data-sources";
+import { orchestrate } from "@/lib/agents/orchestrator";
+import { formatUSD } from "@/lib/format";
+
+// Analysis runs the live agent pipeline (market data + LLM) on every request.
+export const dynamic = "force-dynamic";
 
 interface TokenPageProps {
   params: Promise<{ symbol: string }>;
@@ -30,44 +35,6 @@ export async function generateMetadata({ params }: TokenPageProps): Promise<Meta
   const { symbol } = await params;
   return { title: `${symbol.toUpperCase()} Analysis` };
 }
-
-// Mock data for demo. Real data comes from /api/analyze
-const MOCK_RESULT = {
-  symbol: "CAKE",
-  price: 3.24,
-  price_change_24h: 12.4,
-  volume_score: 89,
-  momentum_score: 74,
-  market_cap: 820_000_000,
-  volume_24h: 142_000_000,
-  narrative: "DeFi",
-  narrative_confidence: 92,
-  narrative_explanation:
-    "PancakeSwap is a leading DEX on BNB Chain benefiting from renewed DeFi activity and BNB ecosystem growth. The protocol has maintained dominant market share with continuous v3 upgrades.",
-  crowd_fomo: 78,
-  crowd_level: "FOMO",
-  crowd_drivers: [
-    "Volume spike 3.2× above 7-day average",
-    "Strong buy-side order flow on BNB Chain DEXes",
-    "Social mention count up 187% in 24h",
-  ],
-  reverse_probability: 34,
-  reverse_risk: "Low-Medium",
-  red_flags: [
-    "Price up 12% with no fundamental catalyst",
-    "Retail-driven momentum — no VC or whale accumulation signal",
-  ],
-  decision: "BUY",
-  confidence: 87,
-  reasoning:
-    "Strong momentum backed by a credible DeFi narrative, healthy volume metrics, and low-medium bubble risk. The FOMO score is elevated but not euphoric — crowd energy is building, not exploding.",
-  bull_case:
-    "DeFi narrative tailwind, dominant DEX position on BNB Chain, v3 upgrade cycle driving TVL growth.",
-  bear_case:
-    "Retail-driven pump with no institutional confirmation. Elevated FOMO could reverse quickly.",
-  key_insight: "Volume quality is strong — this is real trading activity, not wash trading.",
-  time_horizon: "3–7 days",
-};
 
 function ScoreBar({
   score,
@@ -100,8 +67,38 @@ function ScoreBar({
 
 export default async function TokenPage({ params }: TokenPageProps) {
   const { symbol } = await params;
-  const data = MOCK_RESULT;
   const s = symbol.toUpperCase();
+
+  // Run the live agent pipeline. Agents degrade to neutral fallbacks (never
+  // throw), so this always returns a full result even if the LLM is unreachable.
+  const result = await orchestrate(symbol);
+
+  // Flatten the nested AnalysisResult into the shape this view renders.
+  const data = {
+    price: result.scout.price,
+    price_change_24h: result.scout.price_change_24h,
+    volume_score: result.scout.volume_score,
+    momentum_score: result.scout.momentum_score,
+    market_cap: result.scout.market_cap,
+    volume_24h: result.scout.volume_24h,
+    narrative: result.narrative.narrative,
+    narrative_confidence: result.narrative.confidence,
+    narrative_explanation: result.narrative.explanation,
+    crowd_fomo: result.crowd.fomo_score,
+    crowd_level: result.crowd.fomo_level.toUpperCase(),
+    crowd_drivers: result.crowd.sentiment_drivers,
+    reverse_probability: result.reverse.bubble_probability,
+    reverse_risk: result.reverse.bubble_risk,
+    red_flags: result.reverse.red_flags,
+    decision: result.judge.decision,
+    confidence: result.judge.confidence,
+    reasoning: result.judge.reasoning,
+    bull_case: result.judge.bull_case,
+    bear_case: result.judge.bear_case,
+    key_insight: result.judge.key_insight,
+    time_horizon: result.judge.time_horizon,
+  };
+  const durationLabel = `${(result.duration_ms / 1000).toFixed(1)}s`;
 
   const decisionColor =
     data.decision === "BUY" ? "text-signal-buy" :
@@ -151,12 +148,12 @@ export default async function TokenPage({ params }: TokenPageProps) {
                 </div>
                 <div className="flex items-center gap-3 text-xs">
                   <div className="text-right">
-                    <div className="font-mono text-text-primary">${(data.market_cap / 1e6).toFixed(0)}M</div>
+                    <div className="font-mono text-text-primary">{formatUSD(data.market_cap)}</div>
                     <div className="text-text-muted">Market Cap</div>
                   </div>
                   <div className="w-px h-8 bg-border-subtle" aria-hidden />
                   <div className="text-right">
-                    <div className="font-mono text-text-primary">${(data.volume_24h / 1e6).toFixed(0)}M</div>
+                    <div className="font-mono text-text-primary">{formatUSD(data.volume_24h)}</div>
                     <div className="text-text-muted">24h Volume</div>
                   </div>
                 </div>
@@ -185,7 +182,7 @@ export default async function TokenPage({ params }: TokenPageProps) {
                       )}
                     </div>
                   ))}
-                  <span className="ml-auto text-text-muted font-mono">2.4s</span>
+                  <span className="ml-auto text-text-muted font-mono">{durationLabel}</span>
                 </div>
               </CardContent>
             </Card>
@@ -204,7 +201,14 @@ export default async function TokenPage({ params }: TokenPageProps) {
                     <ScoreBar score={data.momentum_score} label="Momentum Score" color="text-accent-cyan" />
                   </div>
                   <p className="text-xs text-text-muted mt-4 leading-relaxed">
-                    Volume is 3.2× above the 7-day average. Multi-timeframe momentum is positive across 1h, 4h, and 24h windows.
+                    {data.volume_score >= 60
+                      ? "Volume is elevated relative to market cap — active trading interest."
+                      : "Volume is modest relative to market cap."}{" "}
+                    {data.momentum_score >= 55
+                      ? "Momentum and order flow lean positive."
+                      : data.momentum_score <= 45
+                        ? "Momentum and order flow lean negative."
+                        : "Momentum is roughly balanced."}
                   </p>
                   <div className="mt-4 pt-3 border-t border-border-subtle">
                     <DataSources sources={AGENT_SOURCES.scout} variant="detailed" />
