@@ -5,6 +5,7 @@
 // below are the unit-test target (see CLAUDE.md § Testing).
 
 import { fetchTokenMarketData, type TokenMarketData } from "@/lib/dexscreener";
+import { fetchCmcMarketData } from "@/lib/cmc";
 import type { ScoutInput, ScoutOutput } from "@/types/agents";
 
 function clamp(n: number, min = 0, max = 100): number {
@@ -48,7 +49,10 @@ export function calculateMomentumScore(
   return clamp(priceComponent * 0.65 + flowComponent * 0.35);
 }
 
-function toOutput(symbol: string, data: TokenMarketData): ScoutOutput {
+function toOutput(
+  data: TokenMarketData,
+  source: ScoutOutput["data_source"],
+): ScoutOutput {
   return {
     symbol: data.symbol,
     name: data.name,
@@ -60,7 +64,27 @@ function toOutput(symbol: string, data: TokenMarketData): ScoutOutput {
     momentum_score: Math.round(
       calculateMomentumScore(data.price_change_24h, data.buys_24h, data.sells_24h),
     ),
-    data_source: "dexscreener",
+    data_source: source,
+  };
+}
+
+/**
+ * Merge the two sources: CMC (the sponsor capability) is authoritative for
+ * price / volume / market cap / 24h change; DexScreener supplies on-chain
+ * order-flow (buys/sells) and liquidity that CMC quotes don't carry.
+ */
+function merge(cmc: TokenMarketData, dex: TokenMarketData): TokenMarketData {
+  return {
+    symbol: cmc.symbol,
+    name: cmc.name || dex.name,
+    address: dex.address || cmc.address,
+    price: cmc.price || dex.price,
+    price_change_24h: cmc.price_change_24h,
+    volume_24h: cmc.volume_24h || dex.volume_24h,
+    market_cap: cmc.market_cap || dex.market_cap,
+    liquidity_usd: dex.liquidity_usd,
+    buys_24h: dex.buys_24h,
+    sells_24h: dex.sells_24h,
   };
 }
 
@@ -80,7 +104,14 @@ function neutralOutput(symbol: string): ScoutOutput {
 }
 
 export async function execute(input: ScoutInput): Promise<ScoutOutput> {
-  const data = await fetchTokenMarketData(input.symbol);
-  if (!data) return neutralOutput(input.symbol);
-  return toOutput(input.symbol, data);
+  // CMC (sponsor capability) and DexScreener in parallel; either can be null.
+  const [cmc, dex] = await Promise.all([
+    fetchCmcMarketData(input.symbol),
+    fetchTokenMarketData(input.symbol),
+  ]);
+
+  if (cmc && dex) return toOutput(merge(cmc, dex), "cmc");
+  if (cmc) return toOutput(cmc, "cmc");
+  if (dex) return toOutput(dex, "dexscreener");
+  return neutralOutput(input.symbol);
 }

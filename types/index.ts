@@ -31,3 +31,12 @@ export type {
   AgentLogRow,
   Database,
 } from "./database";
+
+export type {
+  Candle,
+  BacktestSignal,
+  StrategyFeatures,
+  BacktestTrade,
+  BacktestPoint,
+  BacktestResult,
+} from "./backtest";

@@ -1,0 +1,52 @@
+1
+00:00:00,000 --> 00:00:05,557
+Most traders don't lose money on bad charts. They lose it buying euphoria, and selling fear.
+
+2
+00:00:05,557 --> 00:00:12,020
+Euphoria is an AI platform for BNB Chain that measures the emotion driving the market — not just the price.
+
+3
+00:00:11,520 --> 00:00:14,759
+Ask it about any token, and five agents go to work.
+
+4
+00:00:14,759 --> 00:00:18,380
+Scout reads the data; Narrative explains why it's moving.
+
+5
+00:00:18,380 --> 00:00:22,381
+Crowd scores the FOMO while Reverse argues the contrarian case.
+
+6
+00:00:22,381 --> 00:00:29,559
+Then the Judge delivers a verdict — buy, sell, or watch — with full reasoning, every signal traced to its source.
+
+7
+00:00:29,059 --> 00:00:34,688
+And it's not just talk — we turned that thesis into a deterministic, backtestable strategy.
+
+8
+00:00:34,688 --> 00:00:38,956
+Ride momentum, move to cash when the crowd turns euphoric or fearful.
+
+9
+00:00:38,956 --> 00:00:44,091
+On Bitcoin it beat buy & hold through a 30% crash, with a fraction of the drawdown.
+
+10
+00:00:43,590 --> 00:00:46,446
+The edge holds across the BNB ecosystem.
+
+11
+00:00:46,446 --> 00:00:52,944
+On PancakeSwap's CAKE and BNB itself, Euphoria preserved capital while buy & hold bled out.
+
+12
+00:00:52,444 --> 00:00:57,189
+Pure, reproducible, and unit-tested — powered by CoinMarketCap.
+
+13
+00:00:57,189 --> 00:01:02,009
+Euphoria. Trade market emotions, not charts. Built for BNB Hack.
+

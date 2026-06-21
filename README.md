@@ -4,6 +4,11 @@
 
 Euphoria is an AI-powered market psychology platform for BNB Chain. Instead of traditional trading indicators, it analyzes crowd behavior, narratives, momentum, and market emotions through a collaborative multi-agent AI system.
 
+> 🏆 **Built for [BNB Hack: AI Trading Agent Edition](https://dorahacks.io/hackathon/bnbhack-twt-cmc)** (CoinMarketCap × Trust Wallet × BNB Chain) — **Track 2: Strategy Skills.**
+> Euphoria's psychology thesis ships as a deterministic, **backtestable Strategy Skill** (the [`euphoria-strategy`](packages/euphoria-strategy) npm package) that beats buy & hold with far lower drawdown. Sponsor capability: **CoinMarketCap** market data.
+>
+> 🎬 Demo video: [`demo/euphoria-demo.mp4`](demo/euphoria-demo.mp4)
+
 [![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https://github.com/your-org/euphoria)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 [![Next.js](https://img.shields.io/badge/Next.js-16-black)](https://nextjs.org)
@@ -34,6 +39,9 @@ Scans BNB Chain for narrative-driven momentum. Identifies which themes (AI, Meme
 
 ### AI Agent Debate
 Five specialized AI agents collaborate and debate before producing a trade signal. Watch Crowd Agent argue the bull case while Reverse Agent argues the bear case — then see the Judge decide.
+
+### Backtestable Strategy Skill
+The same psychology thesis, distilled into a **pure, deterministic strategy** you can backtest and ship. Packaged as [`euphoria-strategy`](packages/euphoria-strategy) (zero-dependency npm package) and exposed in-app at `/backtest`. Across BNB-ecosystem assets it preserves capital — going to cash when the crowd turns euphoric or fearful — beating buy & hold through drawdowns. See [Strategy Skill](#strategy-skill-npm-package).
 
 ### Narrative Discovery
 Understands *why* markets move, not just that they moved. Each analysis surfaces the human story behind the price action.
@@ -165,6 +173,38 @@ sequenceDiagram
 
 ---
 
+## Strategy Skill (npm package)
+
+> **Track 2 deliverable.** Euphoria's market-psychology thesis as a deterministic, backtestable strategy — shippable on its own.
+
+The package [`packages/euphoria-strategy`](packages/euphoria-strategy) is a **zero-dependency** TypeScript library that turns OHLCV candles into `BUY` / `SELL` / `WATCH` signals and backtests them vs buy & hold. It mirrors the live agents' logic (Scout → momentum, Crowd → FOMO, Reverse → bubble risk) but is pure and reproducible — no LLM, no randomness — so it can be unit-tested and replayed.
+
+```ts
+import { runBacktest, signalFor, computeFeatures, WARMUP, type Candle } from "euphoria-strategy";
+
+const candles: Candle[] = await loadDailyCandles("BTCUSDT"); // Binance, CMC, etc.
+const result = runBacktest("BTC", candles);
+// → { totalReturnPct, buyHoldReturnPct, maxDrawdownPct, winRatePct, trades, sharpe, series }
+
+const signal = signalFor(computeFeatures(candles.slice(-(WARMUP + 1)))); // "BUY" | "SELL" | "WATCH"
+```
+
+**Signal rules (long-only, with hysteresis):**
+- **BUY** — `momentum ≥ 55`, `bubble ≤ 60`, `fomo ≥ 30` (healthy trend, not over-extended)
+- **SELL** (risk-off) — `momentum ≤ 42` (broken trend / fear) **or** `fomo ≥ 75 && bubble ≥ 70` (euphoric top) → move to cash
+- **WATCH** — hold
+
+Build & test:
+
+```bash
+cd packages/euphoria-strategy && npm run build   # → dist/ (publishable)
+npm run test                                      # strategy + engine unit tests (from repo root)
+```
+
+The in-app backtest UI (`/backtest`) and `GET /api/backtest?symbol=CAKE` run this same strategy over live historical candles.
+
+---
+
 ## Tech Stack
 
 ### Frontend
@@ -180,10 +220,12 @@ sequenceDiagram
 ### AI
 | Technology | Purpose |
 |---|---|
-| Vercel AI SDK | AI Integration Layer |
-| OpenRouter | LLM Gateway |
-| Gemini 2.5 Flash | Fast Agent Responses |
-| Gemini 2.5 Pro | Complex Reasoning |
+| OpenAI-compatible gateway | LLM access via `lib/llm.ts` — provider-agnostic |
+| 9router (local) | Default gateway — routes to Claude / GPT / Gemini / DeepSeek |
+| OpenRouter | Production gateway (set `LLM_PROVIDER=openrouter`) |
+| Zod | Structured-output validation + normalization per agent |
+
+> Agents call `/chat/completions` directly (`lib/llm.ts`) and validate output with Zod — the gateway is selected by `LLM_PROVIDER` and models are env-configurable (`*_MODEL_PRO` / `*_MODEL_FLASH`). The two reasoning tiers are **pro** (Narrative, Judge) and **flash** (Crowd, Reverse); Scout is a pure heuristic with no LLM call.
 
 ### Backend & Data
 | Technology | Purpose |
@@ -288,9 +330,13 @@ Open [http://localhost:3000](http://localhost:3000).
 | `NEXT_PUBLIC_SUPABASE_URL` | ✅ | Client | Supabase project URL (browser anon client) |
 | `NEXT_PUBLIC_SUPABASE_ANON_KEY` | ✅ | Client | Supabase anon key — safe for client, RLS-gated |
 | `NEXT_PUBLIC_APP_URL` | ⬜ | Client | Public app URL — OG tags, OpenRouter attribution |
-| `OPENROUTER_API_KEY` | ✅ | Server | OpenRouter API key for all LLM access |
-| `DEXSCREENER_API_URL` | ✅ | Server | DexScreener base URL — **primary** BNB Chain data source |
-| `COINMARKETCAP_API_KEY` | ⬜ | Server | **Optional** — trending/market-cap context; tight free quota, app degrades to DexScreener-only without it |
+| `LLM_PROVIDER` | ⬜ | Server | `9router` (default, local) or `openrouter` (production) |
+| `NINEROUTER_BASE_URL` | ⬜ | Server | 9router endpoint (default `http://localhost:20128/v1`) |
+| `NINEROUTER_API_KEY` | ⬜ | Server | 9router dashboard key (any value works locally) |
+| `NINEROUTER_MODEL_PRO` / `NINEROUTER_MODEL_FLASH` | ⬜ | Server | Model aliases per connected provider (e.g. `claude-sonnet-4.5`, `deepseek-v4-flash`) |
+| `OPENROUTER_API_KEY` | ⬜ | Server | Required only when `LLM_PROVIDER=openrouter` |
+| `DEXSCREENER_API_URL` | ✅ | Server | DexScreener base URL — on-chain BNB Chain DEX data |
+| `COINMARKETCAP_API_KEY` | ⬜ | Server | **Sponsor capability** — primary market read (price/volume/cap); free Basic key. App degrades to DexScreener-only without it |
 | `SUPABASE_SERVICE_ROLE_KEY` | ✅ | Server | Supabase service role key — full DB access |
 | `PRIVY_APP_SECRET` | ✅ | Server | Privy app secret for token verification |
 | `PRIVY_VERIFIER_KEY` | ✅ | Server | Privy JWT verification key (`jwtVerificationKey`, skips a network call) |
@@ -320,12 +366,11 @@ euphoria/
 │   ├── globals.css              # Global styles
 │   ├── dashboard/               # Main dashboard
 │   ├── radar/                   # FOMO Radar
-│   ├── token/[symbol]/          # Token analysis
+│   ├── token/[symbol]/          # Token analysis (live agent pipeline)
+│   ├── backtest/                # Strategy backtest UI
 │   └── api/                     # Route handlers
-│       ├── analyze/route.ts
-│       ├── fomo/route.ts
-│       ├── narratives/route.ts
-│       └── cron/fomo/route.ts   # Vercel Cron — precompute FOMO index
+│       ├── analyze/route.ts     # POST — run the agent pipeline
+│       └── backtest/route.ts    # GET  — backtest the strategy skill
 ├── components/
 │   ├── layout/                  # Header, sidebar
 │   ├── dashboard/               # Dashboard widgets
@@ -341,16 +386,19 @@ euphoria/
 │   │   ├── reverse.ts
 │   │   ├── judge.ts
 │   │   └── prompts.ts
-│   ├── cmc.ts                   # CoinMarketCap client
+│   ├── backtest/                # Strategy Skill (in-app)
+│   │   ├── strategy.ts          #   deterministic signal rules
+│   │   ├── engine.ts            #   backtest loop + metrics
+│   │   └── binance.ts           #   historical OHLCV source
+│   ├── cmc.ts                   # CoinMarketCap client (sponsor capability)
 │   ├── dexscreener.ts           # DexScreener client
-│   ├── openrouter.ts            # OpenRouter LLM client
-│   ├── supabase/
-│   ├── privy/
-│   ├── blockchain/
+│   ├── llm.ts                   # LLM gateway (9router / OpenRouter, OpenAI-compatible)
 │   ├── format.ts
 │   └── utils.ts
+├── packages/
+│   └── euphoria-strategy/       # Publishable Strategy Skill (npm package)
+├── demo/                        # Demo video + assets
 ├── types/
-├── supabase/migrations/
 └── docs/
 ```
 

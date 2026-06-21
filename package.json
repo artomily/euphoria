@@ -8,7 +8,7 @@
     "start": "next start",
     "lint": "eslint",
     "check": "tsc --noEmit",
-    "test": "echo \"No tests yet — add Vitest per TASK-107\" && exit 0"
+    "test": "vitest run"
   },
   "dependencies": {
     "@ai-sdk/openai-compatible": "^2.0.51",
@@ -34,6 +34,7 @@
     "eslint": "^9",
     "eslint-config-next": "16.2.7",
     "tailwindcss": "^4",
-    "typescript": "^5"
+    "typescript": "^5",
+    "vitest": "^4.1.9"
   }
 }

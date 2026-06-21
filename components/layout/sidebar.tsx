@@ -6,6 +6,7 @@ import {
   LayoutDashboard,
   Radio,
   Scale,
+  LineChart,
   History,
   Settings,
   ShieldCheck,
@@ -21,6 +22,7 @@ const navSections: {
     items: [
       { href: "/dashboard", icon: LayoutDashboard, label: "Dashboard" },
       { href: "/radar", icon: Radio, label: "FOMO Radar" },
+      { href: "/backtest", icon: LineChart, label: "Backtest", hint: "Strategy" },
       { href: "/predictions", icon: Scale, label: "Predictions", hint: "Polymarket" },
     ],
   },

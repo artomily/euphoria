@@ -9,17 +9,20 @@ import { clamp } from "@/lib/utils";
 import { JUDGE_SYSTEM, judgePrompt } from "./prompts";
 import type { JudgeInput, JudgeOutput } from "@/types/agents";
 
-const DECISIONS = ["BUY", "SELL", "WATCH"] as const;
-
 const schema = z.object({
-  decision: z.enum(DECISIONS),
-  confidence: z.number().describe("Calibrated confidence in the decision, 0-100"),
+  decision: z.string().describe("BUY, SELL, or WATCH"),
+  confidence: z.coerce.number().describe("Calibrated confidence in the decision, 0-100"),
   reasoning: z.string().describe("Why this verdict, synthesizing all signals"),
   bull_case: z.string(),
   bear_case: z.string(),
   key_insight: z.string().describe("One-line standout insight"),
   time_horizon: z.string().describe("Suggested holding window, e.g. '3-7 days'"),
 });
+
+function normalizeDecision(s: string): JudgeOutput["decision"] {
+  const u = s.trim().toUpperCase();
+  return u === "BUY" || u === "SELL" || u === "WATCH" ? u : "WATCH";
+}
 
 const FALLBACK: JudgeOutput = {
   decision: "WATCH",
@@ -39,5 +42,9 @@ export async function execute(input: JudgeInput): Promise<JudgeOutput> {
     prompt: judgePrompt(input.scout, input.narrative, input.crowd, input.reverse),
     fallback: FALLBACK,
   });
-  return { ...out, confidence: clamp(out.confidence) };
+  return {
+    ...out,
+    decision: normalizeDecision(out.decision),
+    confidence: clamp(out.confidence),
+  };
 }

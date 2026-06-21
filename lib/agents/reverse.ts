@@ -5,19 +5,24 @@ import { z } from "zod";
 import { runStructured } from "@/lib/llm";
 import { clamp } from "@/lib/utils";
 import { REVERSE_SYSTEM, reversePrompt } from "./prompts";
-import type { ReverseInput, ReverseOutput } from "@/types/agents";
+import type { ReverseInput, ReverseOutput, BubbleRisk } from "@/types/agents";
 
-const BUBBLE_RISKS = ["low", "medium", "high", "extreme"] as const;
+// Lenient inputs; bubble_risk is derived from the probability below, so we
+// accept any string for it (models often return "Medium" etc.).
+const strArray = z.preprocess(
+  (v) => (typeof v === "string" ? [v] : v),
+  z.array(z.string()),
+);
 
 const schema = z.object({
-  bubble_probability: z.number().describe("Probability this is a bubble, 0-100"),
-  bubble_risk: z.enum(BUBBLE_RISKS),
-  red_flags: z.array(z.string()).describe("2-4 warning signs"),
+  bubble_probability: z.coerce.number().describe("Probability this is a bubble, 0-100"),
+  bubble_risk: z.string().optional(),
+  red_flags: strArray.describe("2-4 warning signs"),
   contrarian_argument: z.string().describe("The case against the crowd"),
   historical_parallel: z.string().optional().describe("A comparable past episode"),
 });
 
-function riskFor(prob: number): (typeof BUBBLE_RISKS)[number] {
+function riskFor(prob: number): BubbleRisk {
   if (prob >= 75) return "extreme";
   if (prob >= 50) return "high";
   if (prob >= 25) return "medium";
