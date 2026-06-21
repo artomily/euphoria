@@ -21,7 +21,7 @@ export default function PredictionPasteBar({ className, autoFocus }: PredictionP
   function submit(input: string) {
     const slug = parsePolymarketSlug(input);
     if (!slug) {
-      setError("Paste a valid Polymarket link or market slug.");
+      setError("Paste a valid Binance Prediction link or market slug.");
       return;
     }
     setError(null);
@@ -47,7 +47,7 @@ export default function PredictionPasteBar({ className, autoFocus }: PredictionP
         <Link2 size={16} className="text-[var(--text-muted)] shrink-0" aria-hidden />
 
         <label htmlFor="polymarket-url" className="sr-only">
-          Polymarket link
+          Binance Prediction link
         </label>
         <input
           id="polymarket-url"
@@ -60,7 +60,7 @@ export default function PredictionPasteBar({ className, autoFocus }: PredictionP
             setValue(e.target.value);
             if (error) setError(null);
           }}
-          placeholder="Paste a Polymarket bet link…"
+          placeholder="Paste a Binance Prediction bet link…"
           aria-invalid={error ? true : undefined}
           aria-describedby={error ? "polymarket-error" : undefined}
           className="flex-1 bg-transparent text-sm text-[var(--text-primary)] placeholder:text-[var(--text-muted)] outline-none min-w-0"

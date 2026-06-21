@@ -39,11 +39,11 @@ const FEATURES = [
     icon: Scale,
     title: "Prediction FOMO",
     description:
-      "Paste any Polymarket link — we score the crowd psychology driving the bet so you know when to fade.",
-    color: "#1652f0",
-    bg: "#e9efff",
+      "Binance Prediction integration coming soon — we'll score the crowd psychology driving any prediction market bet so you know when to fade.",
+    color: "#f59e0b",
+    bg: "#fffbeb",
     href: "/predictions",
-    tag: "Polymarket",
+    tag: "Coming Soon",
   },
   {
     icon: ShieldCheck,
