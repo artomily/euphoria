@@ -1,7 +1,8 @@
-// ─── Polymarket Bet FOMO ─────────────────────────────────────────────────────
-// Paste a Polymarket link and Euphoria scores the *crowd psychology* around the
-// bet — not the odds themselves, but how much FOMO is driving one side. The
-// analysis is deterministic per-slug so a demo link always yields the same read.
+// ─── Binance Prediction FOMO ─────────────────────────────────────────────────
+// Paste a Binance prediction link and Euphoria scores the *crowd psychology*
+// around the bet — not the odds themselves, but how much FOMO is driving one
+// side. The analysis is deterministic per-slug so a demo link always yields the
+// same read.
 
 import { PREDICTION_SOURCES, type SourcePlatform } from "./data-sources";
 
@@ -37,27 +38,27 @@ export interface BetFomoAnalysis {
   sources: SourcePlatform[];
 }
 
-const POLYMARKET_HOST = /(^|\.)polymarket\.com$/i;
+const BINANCE_HOST = /(^|\.)binance\.com$/i;
 
-/** True if the input string is a Polymarket URL. */
-export function isPolymarketUrl(input: string): boolean {
+/** True if the input string is a Binance prediction URL. */
+export function isBinanceUrl(input: string): boolean {
   try {
     const url = new URL(input.trim());
-    return POLYMARKET_HOST.test(url.hostname);
+    return BINANCE_HOST.test(url.hostname);
   } catch {
     return false;
   }
 }
 
 /**
- * Extract the market slug from a Polymarket URL, or return a slugified raw
- * input. Handles /event/<slug>, /market/<slug>, and trailing query/hash.
+ * Extract the market slug from a Binance prediction URL, or return a slugified
+ * raw input. Handles /event/<slug>, /market/<slug>, and trailing query/hash.
  */
-export function parsePolymarketSlug(input: string): string | null {
+export function parseBinanceSlug(input: string): string | null {
   const raw = input.trim();
   if (!raw) return null;
 
-  if (isPolymarketUrl(raw)) {
+  if (isBinanceUrl(raw)) {
     const url = new URL(raw);
     const segments = url.pathname.split("/").filter(Boolean);
     // .../event/<slug> or .../market/<slug> → take the last meaningful segment
@@ -105,7 +106,7 @@ function pickCategory(slug: string): string {
 }
 
 /**
- * Produce a deterministic FOMO read for a Polymarket bet from its slug.
+ * Produce a deterministic FOMO read for a Binance prediction from its slug.
  * Same slug → same analysis (stable for demos and caching).
  */
 export function analyzeBet(slug: string): BetFomoAnalysis {

@@ -64,7 +64,7 @@ export default function BetFomoCard({ analysis }: BetFomoCardProps) {
   } = analysis;
   const v = VERDICT_STYLES[verdict];
   const barColor = fomoBarColor(fomoScore);
-  const polymarketUrl = `${DATA_SOURCES.polymarket.url}/event/${market.slug}`;
+  const binanceUrl = `${DATA_SOURCES.binance.url}/en/prediction/${market.slug}`;
 
   return (
     <article className="rounded-2xl border border-[var(--border)] bg-white shadow-[var(--shadow-card)] overflow-hidden">
@@ -74,8 +74,8 @@ export default function BetFomoCard({ analysis }: BetFomoCardProps) {
           <span
             className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold border"
             style={{
-              background: DATA_SOURCES.polymarket.bg,
-              color: DATA_SOURCES.polymarket.color,
+              background: DATA_SOURCES.binance.bg,
+              color: DATA_SOURCES.binance.color,
               borderColor: "transparent",
             }}
           >
@@ -83,12 +83,12 @@ export default function BetFomoCard({ analysis }: BetFomoCardProps) {
           </span>
           <span className="text-xs text-[var(--text-muted)]">Resolves {market.endsAt}</span>
           <a
-            href={polymarketUrl}
+            href={binanceUrl}
             target="_blank"
             rel="noopener noreferrer"
             className="ml-auto inline-flex items-center gap-1 text-xs text-[var(--text-secondary)] hover:text-[var(--text-primary)] transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-400/40 rounded"
           >
-            View on Polymarket
+            View on Binance
             <ExternalLink size={12} aria-hidden />
           </a>
         </div>

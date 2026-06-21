@@ -85,7 +85,7 @@ export default function DashboardPage() {
               <FomoOrb
                 level="ready"
                 label="AI is ready"
-                sublabel="Search a token or paste a Polymarket link to begin"
+                sublabel="Search a token or paste a Binance prediction link to begin"
               />
             </div>
 

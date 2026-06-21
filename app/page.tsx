@@ -39,11 +39,11 @@ const FEATURES = [
     icon: Scale,
     title: "Prediction FOMO",
     description:
-      "Paste any Polymarket link — we score the crowd psychology driving the bet so you know when to fade.",
-    color: "#1652f0",
-    bg: "#e9efff",
+      "Paste any Binance prediction link — we score the crowd psychology driving the bet so you know when to fade.",
+    color: "#f0b90b",
+    bg: "#fef7e0",
     href: "/predictions",
-    tag: "Polymarket",
+    tag: "Binance",
   },
   {
     icon: ShieldCheck,
@@ -68,7 +68,7 @@ const LANDING_SOURCES: SourcePlatform[] = [
   "coinmarketcap",
   "coingecko",
   "bscscan",
-  "polymarket",
+  "binance",
   "news",
 ];
 

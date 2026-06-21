@@ -5,11 +5,11 @@ import { Header } from "@/components/layout/header";
 import PredictionPasteBar from "@/components/predictions/prediction-paste-bar";
 import TrendingMarkets from "@/components/predictions/trending-markets";
 import BetFomoCard from "@/components/predictions/bet-fomo-card";
-import { analyzeBet, parsePolymarketSlug } from "@/lib/predictions";
+import { analyzeBet, parseBinanceSlug } from "@/lib/predictions";
 
 export const metadata: Metadata = {
   title: "Prediction FOMO · Euphoria",
-  description: "Paste a Polymarket link and Euphoria scores the crowd psychology driving the bet.",
+  description: "Paste a Binance prediction link and Euphoria scores the crowd psychology driving the bet.",
 };
 
 interface PredictionsPageProps {
@@ -20,7 +20,7 @@ const HOW_IT_WORKS = [
   {
     step: "1",
     title: "Paste a bet",
-    body: "Drop any Polymarket event link — crypto, politics, sports, or macro.",
+    body: "Drop any Binance prediction link — crypto, politics, sports, or macro.",
   },
   {
     step: "2",
@@ -36,7 +36,7 @@ const HOW_IT_WORKS = [
 
 export default async function PredictionsPage({ searchParams }: PredictionsPageProps) {
   const { m } = await searchParams;
-  const slug = m ? parsePolymarketSlug(m) : null;
+  const slug = m ? parseBinanceSlug(m) : null;
   const analysis = slug ? analyzeBet(slug) : null;
 
   return (
@@ -50,7 +50,7 @@ export default async function PredictionsPage({ searchParams }: PredictionsPageP
             <div>
               <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-blue-50 border border-blue-100 mb-3">
                 <Scale size={13} className="text-blue-600" aria-hidden />
-                <span className="text-xs font-medium text-blue-600">Polymarket × Euphoria</span>
+                <span className="text-xs font-medium text-blue-600">Binance × Euphoria</span>
               </div>
               <h1 className="text-2xl font-semibold text-[var(--text-primary)] tracking-tight">
                 Score the FOMO behind any bet

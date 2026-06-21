@@ -66,7 +66,7 @@ What makes Euphoria different from "another GPT-wrapper trading bot":
 
 Euphoria is **read-only** — it analyzes markets and never touches user funds, so there is **no on-chain contract or transaction surface** (and no private-key handling). It's "live" in three places:
 
-- **Web app (live demo):** 〈your Vercel URL — e.g. https://euphoria.vercel.app〉
+- **Web app (live demo):** https://euphoria-agent.vercel.app
 - **Strategy Skill (npm package):** [`packages/euphoria-strategy`](../packages/euphoria-strategy) — `runBacktest()` / `signalFor()`
 - **In-app backtester:** `/backtest` UI and `GET /api/backtest?symbol=CAKE`, running the strategy over live historical candles
 - **Target network:** BNB Chain (token universe + DEX data)
@@ -125,8 +125,8 @@ The first AI platform that trades emotion as a primary signal.
 
 ## 10. Links
 
-- **Live demo:** 〈Vercel URL〉
-- **Demo video:** [`demo/euphoria-demo.mp4`](../demo/euphoria-demo.mp4)
+- **Live demo:** https://euphoria-agent.vercel.app
+- **Demo video:** https://youtu.be/jZCJwJTpH4c
 - **GitHub repo:** https://github.com/artomily/euphoria
 - **Strategy Skill (npm package):** [`packages/euphoria-strategy`](../packages/euphoria-strategy)
 - **Architecture deep-dive:** [`docs/ARCHITECTURE.md`](ARCHITECTURE.md)

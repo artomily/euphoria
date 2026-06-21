@@ -4,7 +4,7 @@ import { useState, FormEvent, KeyboardEvent } from "react";
 import { useRouter } from "next/navigation";
 import { Search, ChevronDown, Scale } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { isPolymarketUrl, parsePolymarketSlug } from "@/lib/predictions";
+import { isBinanceUrl, parseBinanceSlug } from "@/lib/predictions";
 
 interface TokenSearchBarProps {
   className?: string;
@@ -14,16 +14,16 @@ export default function TokenSearchBar({ className }: TokenSearchBarProps) {
   const [value, setValue] = useState("");
   const router = useRouter();
 
-  // A pasted Polymarket link switches the bar into "Scan FOMO" mode.
-  const isPolymarket = isPolymarketUrl(value);
+  // A pasted Binance prediction link switches the bar into "Scan FOMO" mode.
+  const isBinance = isBinanceUrl(value);
 
   function handleSubmit(e: FormEvent) {
     e.preventDefault();
     const raw = value.trim();
     if (!raw) return;
 
-    if (isPolymarket) {
-      const slug = parsePolymarketSlug(raw);
+    if (isBinance) {
+      const slug = parseBinanceSlug(raw);
       if (slug) {
         setValue("");
         router.push(`/predictions?m=${encodeURIComponent(slug)}`);
@@ -51,14 +51,14 @@ export default function TokenSearchBar({ className }: TokenSearchBarProps) {
         className
       )}
     >
-      {isPolymarket ? (
+      {isBinance ? (
         <Scale size={15} className="text-blue-500 shrink-0" aria-hidden />
       ) : (
         <Search size={15} className="text-[var(--text-muted)] shrink-0" aria-hidden />
       )}
 
       <label htmlFor="token-search" className="sr-only">
-        Token symbol or Polymarket link
+        Token symbol or Binance prediction link
       </label>
       <input
         id="token-search"
@@ -66,7 +66,7 @@ export default function TokenSearchBar({ className }: TokenSearchBarProps) {
         value={value}
         onChange={(e) => setValue(e.target.value)}
         onKeyDown={handleKeyDown}
-        placeholder="Search a token or paste a Polymarket link…"
+        placeholder="Search a token or paste a Binance prediction link…"
         className="flex-1 bg-transparent text-sm text-[var(--text-primary)] placeholder:text-[var(--text-muted)] outline-none min-w-0"
       />
 
@@ -90,7 +90,7 @@ export default function TokenSearchBar({ className }: TokenSearchBarProps) {
             : "bg-[var(--bg-elevated)] text-[var(--text-secondary)] hover:bg-gray-200"
         )}
       >
-        {isPolymarket ? "Scan FOMO" : value.trim() ? "Analyze" : "Fast"}
+        {isBinance ? "Scan FOMO" : value.trim() ? "Analyze" : "Fast"}
       </button>
     </form>
   );
