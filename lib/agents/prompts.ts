@@ -55,8 +55,11 @@ export function narrativePrompt(scout: ScoutOutput): string {
   return [
     "Classify this BNB Chain token into a single market narrative and explain it.",
     marketBlock(scout),
-    "Pick the narrative category that best fits. If unclear, use \"Unknown\". " +
-      "List 2-4 concrete catalysts that could be drawing attention.",
+    'Output a JSON object with EXACTLY these keys:\n' +
+      '- "narrative": string, one of: AI, Memecoin, RWA, DePIN, Gaming, DeFi, Layer1, Layer2, Unknown\n' +
+      '- "confidence": number 0-100\n' +
+      '- "explanation": string (plain-language story)\n' +
+      '- "key_catalysts": array of 2-4 short strings',
   ].join("\n\n");
 }
 
@@ -73,8 +76,12 @@ export function crowdPrompt(scout: ScoutOutput, narrative: NarrativeOutput): str
     "Score the crowd FOMO around this token and describe what's driving it.",
     marketBlock(scout),
     narrativeBlock(narrative),
-    "Return a fomo_score (0-100), the matching fomo_level, the sentiment drivers, " +
-      "a one-line social_signals read, and a short crowd_narrative.",
+    'Output a JSON object with EXACTLY these keys:\n' +
+      '- "fomo_score": number 0-100\n' +
+      '- "fomo_level": string, one of: calm, interest, bullish, fomo, euphoria\n' +
+      '- "sentiment_drivers": array of 2-4 short strings\n' +
+      '- "social_signals": string (one line)\n' +
+      '- "crowd_narrative": string (short)',
   ].join("\n\n");
 }
 
@@ -91,8 +98,12 @@ export function reversePrompt(scout: ScoutOutput, narrative: NarrativeOutput): s
     "Make the contrarian case against this token and rate its bubble risk.",
     marketBlock(scout),
     narrativeBlock(narrative),
-    "Return bubble_probability (0-100), the matching bubble_risk, 2-4 red_flags, a " +
-      "contrarian_argument, and (if one fits) a historical_parallel.",
+    'Output a JSON object with EXACTLY these keys:\n' +
+      '- "bubble_probability": number 0-100\n' +
+      '- "bubble_risk": string, one of: low, medium, high, extreme\n' +
+      '- "red_flags": array of 2-4 short strings\n' +
+      '- "contrarian_argument": string\n' +
+      '- "historical_parallel": string (optional, "" if none)',
   ].join("\n\n");
 }
 
@@ -130,7 +141,13 @@ export function judgePrompt(
       `red_flags: ${reverse.red_flags.join("; ")}`,
       "</reverse>",
     ].join("\n"),
-    "Return a decision (BUY/SELL/WATCH), confidence (0-100), reasoning, a bull_case, " +
-      "a bear_case, a one-line key_insight, and a suggested time_horizon.",
+    'Output a JSON object with EXACTLY these keys:\n' +
+      '- "decision": string, one of: BUY, SELL, WATCH\n' +
+      '- "confidence": number 0-100\n' +
+      '- "reasoning": string\n' +
+      '- "bull_case": string\n' +
+      '- "bear_case": string\n' +
+      '- "key_insight": string (one line)\n' +
+      '- "time_horizon": string (e.g. "3-7 days")',
   ].join("\n\n");
 }

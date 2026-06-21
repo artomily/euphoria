@@ -5,20 +5,19 @@
 // Two providers are wired and selected by the LLM_PROVIDER env var:
 //
 //   • "9router"    (default) — a local OpenAI-compatible gateway running at
-//                  http://localhost:20128/v1 that routes to free Claude/GPT/
-//                  Gemini via your connected providers. Great for local dev +
+//                  http://localhost:20128/v1 that routes to Claude/GPT/Gemini/
+//                  DeepSeek via your connected providers. Great for local dev +
 //                  hackathon demos. NOTE: it lives on localhost, so it is NOT
 //                  reachable from a deployed Vercel function — flip the env to
 //                  "openrouter" for production.
 //
 //   • "openrouter" — the hosted OpenRouter gateway. Works anywhere, needs a key.
 //
-// Both are OpenAI-compatible, so we use a single client shape via the AI SDK and
-// always produce structured output with generateObject + a Zod schema.
+// Both are OpenAI-compatible. We call /chat/completions directly with fetch
+// (rather than via an AI SDK provider) because 9router can return an SSE-framed
+// body even to non-streaming requests, which trips up the SDK's strict parser.
+// We parse the completion ourselves and validate with the Zod schema.
 
-import { generateObject, type LanguageModel } from "ai";
-import { createOpenAICompatible } from "@ai-sdk/openai-compatible";
-import { createOpenRouter } from "@openrouter/ai-sdk-provider";
 import type { z } from "zod";
 
 export type ModelTier = "pro" | "flash";
@@ -27,8 +26,10 @@ type LlmProvider = "9router" | "openrouter";
 const PROVIDER: LlmProvider =
   process.env.LLM_PROVIDER === "openrouter" ? "openrouter" : "9router";
 
+const REQUEST_TIMEOUT_MS = 45_000;
+
 // Per-provider model ids. 9router uses provider aliases (e.g. "claude-sonnet-4.5",
-// "gemini-2.5-flash") that depend on which providers you connected in its
+// "deepseek-v4-flash") that depend on which providers you connected in its
 // dashboard, so every id is overridable via env.
 const MODELS: Record<LlmProvider, Record<ModelTier, string>> = {
   "9router": {
@@ -41,46 +42,115 @@ const MODELS: Record<LlmProvider, Record<ModelTier, string>> = {
   },
 };
 
-let _model: ((id: string) => LanguageModel) | null = null;
+function requireEnv(name: string): string {
+  const value = process.env[name];
+  if (!value) throw new Error(`Missing required env var: ${name}`);
+  return value;
+}
 
-/** Lazily build the active provider client (so missing env only bites at call time). */
-function provider(): (id: string) => LanguageModel {
-  if (_model) return _model;
+interface Endpoint {
+  url: string;
+  apiKey: string;
+  headers: Record<string, string>;
+}
 
+function endpoint(): Endpoint {
   if (PROVIDER === "openrouter") {
-    const openrouter = createOpenRouter({
+    const base = process.env.OPENROUTER_BASE_URL ?? "https://openrouter.ai/api/v1";
+    return {
+      url: `${base}/chat/completions`,
       apiKey: requireEnv("OPENROUTER_API_KEY"),
-      compatibility: "strict",
       headers: {
         "HTTP-Referer": process.env.NEXT_PUBLIC_APP_URL ?? "http://localhost:3000",
         "X-Title": "Euphoria",
       },
-    });
-    _model = (id: string) => openrouter.chat(id);
-    return _model;
+    };
   }
-
-  // 9router — local OpenAI-compatible gateway
-  const ninerouter = createOpenAICompatible({
-    name: "9router",
-    baseURL: process.env.NINEROUTER_BASE_URL ?? "http://localhost:20128/v1",
-    // 9router accepts any non-empty key for local use; real key comes from its dashboard.
+  const base = process.env.NINEROUTER_BASE_URL ?? "http://localhost:20128/v1";
+  return {
+    url: `${base}/chat/completions`,
+    // 9router accepts any non-empty key for local use; real key from its dashboard.
     apiKey: process.env.NINEROUTER_API_KEY ?? "local",
-  });
-  _model = (id: string) => ninerouter.chatModel(id);
-  return _model;
+    headers: {},
+  };
 }
 
-export function getModel(tier: ModelTier): LanguageModel {
-  return provider()(MODELS[PROVIDER][tier]);
+interface ChatCompletion {
+  choices?: Array<{ message?: { content?: string } }>;
 }
 
-function requireEnv(name: string): string {
-  const value = process.env[name];
-  if (!value) {
-    throw new Error(`Missing required env var: ${name}`);
+/**
+ * Parse a /chat/completions body that may be plain JSON OR an SSE stream
+ * ("data: {…}\n\ndata: [DONE]"). Returns the first parseable completion object.
+ */
+function parseCompletion(body: string): ChatCompletion | null {
+  const trimmed = body.trim();
+  try {
+    return JSON.parse(trimmed) as ChatCompletion;
+  } catch {
+    // fall through to SSE handling
   }
-  return value;
+  for (const line of trimmed.split(/\r?\n/)) {
+    const l = line.trim();
+    if (!l.startsWith("data:")) continue;
+    const payload = l.slice(5).trim();
+    if (!payload || payload === "[DONE]") continue;
+    try {
+      return JSON.parse(payload) as ChatCompletion;
+    } catch {
+      // ignore non-JSON data lines
+    }
+  }
+  return null;
+}
+
+/** Extract a single JSON object from model content (strip fences / trailing text). */
+function extractJsonObject(content: string): unknown {
+  const t = content.trim().replace(/^```(?:json)?\s*/i, "").replace(/\s*```$/i, "");
+  const first = t.indexOf("{");
+  const last = t.lastIndexOf("}");
+  if (first === -1 || last === -1 || last < first) {
+    throw new Error("no JSON object in model output");
+  }
+  return JSON.parse(t.slice(first, last + 1));
+}
+
+async function chatComplete(
+  tier: ModelTier,
+  prompt: string,
+  system: string | undefined,
+): Promise<string> {
+  const { url, apiKey, headers } = endpoint();
+  const messages: Array<{ role: string; content: string }> = [];
+  if (system) messages.push({ role: "system", content: system });
+  // The word "json" must appear for json_object mode on some providers (DeepSeek/OpenAI).
+  messages.push({ role: "user", content: `${prompt}\n\nRespond with a single valid JSON object only.` });
+
+  const res = await fetch(url, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${apiKey}`,
+      ...headers,
+    },
+    body: JSON.stringify({
+      model: MODELS[PROVIDER][tier],
+      messages,
+      temperature: 0.3,
+      stream: false,
+      response_format: { type: "json_object" },
+    }),
+    signal: AbortSignal.timeout(REQUEST_TIMEOUT_MS),
+  });
+
+  if (!res.ok) {
+    throw new Error(`gateway ${res.status}: ${(await res.text()).slice(0, 200)}`);
+  }
+
+  const completion = parseCompletion(await res.text());
+  const content = completion?.choices?.[0]?.message?.content;
+  if (!content) throw new Error("empty completion content");
+  return content;
 }
 
 interface RunStructuredArgs<T> {
@@ -93,10 +163,9 @@ interface RunStructuredArgs<T> {
 }
 
 /**
- * Run a structured LLM call with the project's standard guarantees:
- * temperature 0.3, one retry with 2s backoff, and a typed neutral fallback on
- * failure. The Zod schema is the validation — malformed output is impossible by
- * construction, so the only failure mode here is network/timeout.
+ * Run a structured LLM call with the project's standard guarantees: temperature
+ * 0.3, one retry with 2s backoff, a 45s timeout, and a typed neutral fallback on
+ * failure. The Zod schema is the final validation guardrail.
  */
 export async function runStructured<T>({
   tier,
@@ -107,24 +176,16 @@ export async function runStructured<T>({
 }: RunStructuredArgs<T>): Promise<T> {
   for (let attempt = 0; attempt < 2; attempt++) {
     try {
-      const { object } = await generateObject({
-        model: getModel(tier),
-        schema,
-        prompt,
-        system,
-        temperature: 0.3,
-      });
-      return object;
+      const content = await chatComplete(tier, prompt, system);
+      const parsed = schema.safeParse(extractJsonObject(content));
+      if (parsed.success) return parsed.data;
+      throw new Error(`schema validation failed: ${parsed.error.message}`);
     } catch (error) {
-      // Don't burn the 2s backoff on errors the provider says are permanent
-      // (e.g. a misconfigured model alias / missing credentials) — fail fast.
-      const retryable = (error as { isRetryable?: boolean }).isRetryable !== false;
-      if (attempt === 0 && retryable) {
+      if (attempt === 0) {
         await new Promise((r) => setTimeout(r, 2000));
         continue;
       }
       console.error(`[llm] ${tier} call failed:`, error);
-      break;
     }
   }
   return fallback;

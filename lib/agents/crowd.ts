@@ -5,19 +5,24 @@ import { z } from "zod";
 import { runStructured } from "@/lib/llm";
 import { clamp } from "@/lib/utils";
 import { CROWD_SYSTEM, crowdPrompt } from "./prompts";
-import type { CrowdInput, CrowdOutput } from "@/types/agents";
+import type { CrowdInput, CrowdOutput, FomoLevel } from "@/types/agents";
 
-const FOMO_LEVELS = ["calm", "interest", "bullish", "fomo", "euphoria"] as const;
+// Lenient inputs (model may return a string for arrays); fomo_level is derived
+// from the score below, so we accept any string for it.
+const strArray = z.preprocess(
+  (v) => (typeof v === "string" ? [v] : v),
+  z.array(z.string()),
+);
 
 const schema = z.object({
-  fomo_score: z.number().describe("Crowd FOMO, 0-100"),
-  fomo_level: z.enum(FOMO_LEVELS),
-  sentiment_drivers: z.array(z.string()).describe("2-4 drivers of crowd excitement"),
+  fomo_score: z.coerce.number().describe("Crowd FOMO, 0-100"),
+  fomo_level: z.string().optional(),
+  sentiment_drivers: strArray.describe("2-4 drivers of crowd excitement"),
   social_signals: z.string().describe("One-line read on social chatter"),
   crowd_narrative: z.string().describe("Short summary of the crowd's story"),
 });
 
-function levelFor(score: number): (typeof FOMO_LEVELS)[number] {
+function levelFor(score: number): FomoLevel {
   if (score >= 80) return "euphoria";
   if (score >= 60) return "fomo";
   if (score >= 40) return "bullish";

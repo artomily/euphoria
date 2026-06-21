@@ -20,12 +20,27 @@ const NARRATIVE_CATEGORIES = [
   "Unknown",
 ] as const;
 
+// Lenient: models (DeepSeek/Gemini via gateway) sometimes return a string where
+// an array is expected, or an off-list / wrong-case category. Accept loosely,
+// then normalize in code — the override is the real guardrail.
+const strArray = z.preprocess(
+  (v) => (typeof v === "string" ? [v] : v),
+  z.array(z.string()),
+);
+
 const schema = z.object({
-  narrative: z.enum(NARRATIVE_CATEGORIES),
-  confidence: z.number().describe("Confidence the narrative is correct, 0-100"),
+  narrative: z.string().describe("Market narrative category"),
+  confidence: z.coerce.number().describe("Confidence the narrative is correct, 0-100"),
   explanation: z.string().describe("Plain-language story driving attention"),
-  key_catalysts: z.array(z.string()).describe("2-4 concrete catalysts"),
+  key_catalysts: strArray.describe("2-4 concrete catalysts"),
 });
+
+function normalizeCategory(s: string): NarrativeOutput["narrative"] {
+  const hit = NARRATIVE_CATEGORIES.find(
+    (c) => c.toLowerCase() === s.trim().toLowerCase(),
+  );
+  return hit ?? "Unknown";
+}
 
 const FALLBACK: NarrativeOutput = {
   narrative: "Unknown",
@@ -42,5 +57,9 @@ export async function execute(input: NarrativeInput): Promise<NarrativeOutput> {
     prompt: narrativePrompt(input.scout),
     fallback: FALLBACK,
   });
-  return { ...out, confidence: clamp(out.confidence) };
+  return {
+    ...out,
+    narrative: normalizeCategory(out.narrative),
+    confidence: clamp(out.confidence),
+  };
 }

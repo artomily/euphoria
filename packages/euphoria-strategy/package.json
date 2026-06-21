@@ -1,0 +1,32 @@
+{
+  "name": "euphoria-strategy",
+  "version": "0.1.0",
+  "description": "Deterministic, backtestable market-psychology trading strategy for BNB Chain — the Strategy Skill powering Euphoria (BNB Hack: AI Trading Agent Edition, Track 2).",
+  "license": "MIT",
+  "type": "commonjs",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "files": [
+    "dist",
+    "README.md"
+  ],
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "prepublishOnly": "npm run build"
+  },
+  "keywords": [
+    "bnb-chain",
+    "trading-strategy",
+    "backtest",
+    "crypto",
+    "market-psychology",
+    "fomo",
+    "quant",
+    "coinmarketcap",
+    "trading-agent"
+  ],
+  "sideEffects": false,
+  "publishConfig": {
+    "access": "public"
+  }
+}

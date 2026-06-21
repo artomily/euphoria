@@ -14,6 +14,8 @@ const eslintConfig = defineConfig([
     "next-env.d.ts",
     // Local tooling / skill definitions — not application code.
     ".claude/**",
+    // Standalone publishable package — has its own build/lint config.
+    "packages/**",
   ]),
 ]);
 
