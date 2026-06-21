@@ -3,6 +3,16 @@
   "version": "0.1.0",
   "description": "Deterministic, backtestable market-psychology trading strategy for BNB Chain — the Strategy Skill powering Euphoria (BNB Hack: AI Trading Agent Edition, Track 2).",
   "license": "MIT",
+  "author": "artomily",
+  "homepage": "https://github.com/artomily/euphoria/tree/main/packages/euphoria-strategy#readme",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/artomily/euphoria.git",
+    "directory": "packages/euphoria-strategy"
+  },
+  "bugs": {
+    "url": "https://github.com/artomily/euphoria/issues"
+  },
   "type": "commonjs",
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
