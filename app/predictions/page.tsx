@@ -8,8 +8,8 @@ import BetFomoCard from "@/components/predictions/bet-fomo-card";
 import { analyzeBet, parseBinanceSlug } from "@/lib/predictions";
 
 export const metadata: Metadata = {
-  title: "Prediction FOMO · Euphoria",
-  description: "Paste a Binance prediction link and Euphoria scores the crowd psychology driving the bet.",
+  title: "Binance Prediction · Euphoria",
+  description: "Binance Prediction integration is coming soon. Euphoria will score the crowd psychology driving any prediction market bet.",
 };
 
 interface PredictionsPageProps {
@@ -20,7 +20,7 @@ const HOW_IT_WORKS = [
   {
     step: "1",
     title: "Paste a bet",
-    body: "Drop any Binance prediction link — crypto, politics, sports, or macro.",
+    body: "Drop any Binance Prediction event link — crypto, politics, sports, or macro.",
   },
   {
     step: "2",
@@ -48,9 +48,10 @@ export default async function PredictionsPage({ searchParams }: PredictionsPageP
           <div className="max-w-3xl mx-auto space-y-6">
             {/* Intro */}
             <div>
-              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-blue-50 border border-blue-100 mb-3">
-                <Scale size={13} className="text-blue-600" aria-hidden />
-                <span className="text-xs font-medium text-blue-600">Binance × Euphoria</span>
+              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-yellow-50 border border-yellow-200 mb-3">
+                <Scale size={13} className="text-yellow-600" aria-hidden />
+                <span className="text-xs font-medium text-yellow-700">Binance Prediction × Euphoria</span>
+                <span className="text-[10px] font-bold uppercase tracking-wider text-yellow-600 bg-yellow-100 border border-yellow-300 rounded px-1.5 py-0.5">Coming Soon</span>
               </div>
               <h1 className="text-2xl font-semibold text-[var(--text-primary)] tracking-tight">
                 Score the FOMO behind any bet

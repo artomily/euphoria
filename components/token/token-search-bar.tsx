@@ -58,7 +58,7 @@ export default function TokenSearchBar({ className }: TokenSearchBarProps) {
       )}
 
       <label htmlFor="token-search" className="sr-only">
-        Token symbol or Binance prediction link
+        Token symbol or Binance Prediction link
       </label>
       <input
         id="token-search"
@@ -66,7 +66,7 @@ export default function TokenSearchBar({ className }: TokenSearchBarProps) {
         value={value}
         onChange={(e) => setValue(e.target.value)}
         onKeyDown={handleKeyDown}
-        placeholder="Search a token or paste a Binance prediction link…"
+        placeholder="Search a token or paste a Binance Prediction link…"
         className="flex-1 bg-transparent text-sm text-[var(--text-primary)] placeholder:text-[var(--text-muted)] outline-none min-w-0"
       />
 

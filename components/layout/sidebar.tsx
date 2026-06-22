@@ -23,7 +23,7 @@ const navSections: {
       { href: "/dashboard", icon: LayoutDashboard, label: "Dashboard" },
       { href: "/radar", icon: Radio, label: "FOMO Radar" },
       { href: "/backtest", icon: LineChart, label: "Backtest", hint: "Strategy" },
-      { href: "/predictions", icon: Scale, label: "Predictions", hint: "Binance" },
+      { href: "/predictions", icon: Scale, label: "Predictions", hint: "Coming Soon" },
     ],
   },
   {
