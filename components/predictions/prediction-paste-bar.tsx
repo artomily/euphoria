@@ -3,7 +3,7 @@
 import { useState, FormEvent } from "react";
 import { useRouter } from "next/navigation";
 import { Link2, Scale, ArrowRight } from "lucide-react";
-import { parsePolymarketSlug } from "@/lib/predictions";
+import { parseBinanceSlug } from "@/lib/predictions";
 import { cn } from "@/lib/utils";
 
 interface PredictionPasteBarProps {
@@ -11,7 +11,7 @@ interface PredictionPasteBarProps {
   autoFocus?: boolean;
 }
 
-const EXAMPLE = "https://polymarket.com/event/will-bitcoin-hit-150k-by-2026";
+const EXAMPLE = "https://www.binance.com/en/prediction/will-bitcoin-hit-150k-by-2026";
 
 export default function PredictionPasteBar({ className, autoFocus }: PredictionPasteBarProps) {
   const [value, setValue] = useState("");
@@ -19,7 +19,7 @@ export default function PredictionPasteBar({ className, autoFocus }: PredictionP
   const router = useRouter();
 
   function submit(input: string) {
-    const slug = parsePolymarketSlug(input);
+    const slug = parseBinanceSlug(input);
     if (!slug) {
       setError("Paste a valid Binance Prediction link or market slug.");
       return;
@@ -50,7 +50,7 @@ export default function PredictionPasteBar({ className, autoFocus }: PredictionP
           Binance Prediction link
         </label>
         <input
-          id="polymarket-url"
+          id="binance-url"
           type="text"
           inputMode="url"
           autoComplete="off"
@@ -62,7 +62,7 @@ export default function PredictionPasteBar({ className, autoFocus }: PredictionP
           }}
           placeholder="Paste a Binance Prediction bet link…"
           aria-invalid={error ? true : undefined}
-          aria-describedby={error ? "polymarket-error" : undefined}
+          aria-describedby={error ? "binance-error" : undefined}
           className="flex-1 bg-transparent text-sm text-[var(--text-primary)] placeholder:text-[var(--text-muted)] outline-none min-w-0"
         />
 
@@ -83,7 +83,7 @@ export default function PredictionPasteBar({ className, autoFocus }: PredictionP
       </form>
 
       {error ? (
-        <p id="polymarket-error" className="text-xs text-red-500 px-1">
+        <p id="binance-error" className="text-xs text-red-500 px-1">
           {error}
         </p>
       ) : (

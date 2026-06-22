@@ -61,7 +61,7 @@ export default function SourceIcon({ platform, size = 13 }: SourceIconProps) {
       return <Coins width={size} height={size} aria-hidden />;
     case "bscscan":
       return <Boxes width={size} height={size} aria-hidden />;
-    case "polymarket":
+    case "binance":
       return <Scale width={size} height={size} aria-hidden />;
     case "news":
       return <Newspaper width={size} height={size} aria-hidden />;

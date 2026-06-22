@@ -68,7 +68,7 @@ const LANDING_SOURCES: SourcePlatform[] = [
   "coinmarketcap",
   "coingecko",
   "bscscan",
-  "polymarket",
+  "binance",
   "news",
 ];
 

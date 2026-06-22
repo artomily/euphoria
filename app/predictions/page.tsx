@@ -5,7 +5,7 @@ import { Header } from "@/components/layout/header";
 import PredictionPasteBar from "@/components/predictions/prediction-paste-bar";
 import TrendingMarkets from "@/components/predictions/trending-markets";
 import BetFomoCard from "@/components/predictions/bet-fomo-card";
-import { analyzeBet, parsePolymarketSlug } from "@/lib/predictions";
+import { analyzeBet, parseBinanceSlug } from "@/lib/predictions";
 
 export const metadata: Metadata = {
   title: "Binance Prediction · Euphoria",
@@ -36,7 +36,7 @@ const HOW_IT_WORKS = [
 
 export default async function PredictionsPage({ searchParams }: PredictionsPageProps) {
   const { m } = await searchParams;
-  const slug = m ? parsePolymarketSlug(m) : null;
+  const slug = m ? parseBinanceSlug(m) : null;
   const analysis = slug ? analyzeBet(slug) : null;
 
   return (

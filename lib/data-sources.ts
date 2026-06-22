@@ -14,7 +14,7 @@ export type SourcePlatform =
   | "coinmarketcap"
   | "coingecko"
   | "bscscan"
-  | "polymarket"
+  | "binance"
   | "news";
 
 export interface DataSource {
@@ -112,13 +112,13 @@ export const DATA_SOURCES: Record<SourcePlatform, DataSource> = {
     bg: "#fdf6e0",
     url: "https://bscscan.com",
   },
-  polymarket: {
-    id: "polymarket",
-    name: "Polymarket",
+  binance: {
+    id: "binance",
+    name: "Binance",
     kind: "prediction",
-    color: "#1652f0",
-    bg: "#e9efff",
-    url: "https://polymarket.com",
+    color: "#f0b90b",
+    bg: "#fef7e0",
+    url: "https://www.binance.com",
   },
   news: {
     id: "news",
@@ -149,9 +149,9 @@ export const AGENT_SOURCES: Record<AgentSourceKey, SourcePlatform[]> = {
   judge: [],
 };
 
-/** Sources consulted when analyzing a Polymarket bet's FOMO. */
+/** Sources consulted when analyzing a Binance prediction's FOMO. */
 export const PREDICTION_SOURCES: SourcePlatform[] = [
-  "polymarket",
+  "binance",
   "x",
   "news",
   "reddit",
