@@ -1,13 +1,20 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { Clock, ArrowRight } from "lucide-react";
+import { Clock, ArrowRight, ChevronRight } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
 import Sidebar from "@/components/layout/sidebar";
 import { Header } from "@/components/layout/header";
+import { getSession } from "@/lib/auth/session";
+import { listAnalyses, type AnalysisListItem } from "@/lib/db/analyses";
+import { isDbConfigured } from "@/lib/db/client";
 
 export const metadata: Metadata = { title: "Analysis History" };
 
-// Shown when the user has no wallet connected yet
+// Analyses are read live from Neon, scoped to the verified wallet session.
+export const dynamic = "force-dynamic";
+
+// Shown when no wallet is verified yet, or there are no analyses.
 function EmptyHistory() {
   return (
     <div className="flex flex-col items-center justify-center gap-4 py-20 text-center">
@@ -31,9 +38,39 @@ function EmptyHistory() {
   );
 }
 
-export default function HistoryPage() {
-  // Will be replaced with real Supabase data in a future sprint
-  const isConnected = false;
+function decisionVariant(decision: string): "buy" | "sell" | "watch" {
+  if (decision === "BUY") return "buy";
+  if (decision === "SELL") return "sell";
+  return "watch";
+}
+
+function HistoryRow({ item }: { item: AnalysisListItem }) {
+  const when = new Date(item.created_at).toLocaleString("en-US", {
+    month: "short",
+    day: "numeric",
+    hour: "numeric",
+    minute: "2-digit",
+  });
+  return (
+    <Link
+      href={`/token/${item.symbol}`}
+      className="flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-white/5 motion-safe:transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent-emerald"
+    >
+      <span className="font-mono text-sm font-semibold text-text-primary w-20 shrink-0">${item.symbol}</span>
+      <Badge variant={decisionVariant(item.decision)}>{item.decision}</Badge>
+      <Badge variant="narrative">{item.narrative}</Badge>
+      <span className="text-xs text-text-muted font-mono hidden sm:inline">
+        FOMO {item.fomo_score} · {item.confidence}% conf
+      </span>
+      <span className="ml-auto text-xs text-text-muted">{when}</span>
+      <ChevronRight className="w-4 h-4 text-text-muted shrink-0" aria-hidden />
+    </Link>
+  );
+}
+
+export default async function HistoryPage() {
+  const session = isDbConfigured() ? await getSession() : null;
+  const analyses = session ? await listAnalyses(session.address) : [];
 
   return (
     <div className="flex h-screen overflow-hidden bg-bg-base">
@@ -53,18 +90,22 @@ export default function HistoryPage() {
             </div>
 
             <Card>
-              <CardContent>
-                {!isConnected ? (
+              <CardContent className={analyses.length > 0 ? "p-2" : undefined}>
+                {!session || analyses.length === 0 ? (
                   <EmptyHistory />
                 ) : (
-                  <p className="text-sm text-text-secondary">History loaded here.</p>
+                  <div className="flex flex-col">
+                    {analyses.map((item) => (
+                      <HistoryRow key={item.id} item={item} />
+                    ))}
+                  </div>
                 )}
               </CardContent>
             </Card>
 
             <p className="text-xs text-text-muted">
               <strong className="text-text-secondary">Not financial advice.</strong>{" "}
-              Analysis history is stored locally to your wallet connection.
+              History is scoped to your verified wallet.
             </p>
           </div>
         </main>

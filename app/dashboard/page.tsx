@@ -1,9 +1,6 @@
 import Sidebar from "@/components/layout/sidebar";
 import { Header } from "@/components/layout/header";
-import Greeting from "@/components/layout/greeting";
-import FomoOrb from "@/components/dashboard/fomo-orb";
-import QuickChips from "@/components/dashboard/quick-chips";
-import TokenSearchBar from "@/components/token/token-search-bar";
+import DashboardExperience from "@/components/dashboard/dashboard-experience";
 import AgentActivityCard from "@/components/agents/agent-activity-card";
 import ScoreBar from "@/components/ui/score-bar";
 
@@ -77,26 +74,10 @@ export default function DashboardPage() {
         >
           <div className="flex flex-col h-full min-h-full px-8 py-8 gap-8">
 
-            {/* Greeting */}
-            <Greeting />
-
-            {/* Orb hero — fills the available vertical space proportionally */}
-            <div className="flex-1 flex items-center justify-center min-h-[280px] max-h-[420px]">
-              <FomoOrb
-                level="ready"
-                label="AI is ready"
-                sublabel="Search a token or paste a Binance prediction link to begin"
-              />
-            </div>
-
-            {/* Quick chips + search */}
-            <div className="flex flex-col gap-3 max-w-2xl mx-auto w-full">
-              <QuickChips />
-              <TokenSearchBar />
-            </div>
-
-            {/* Recent activity — full width grid */}
-            <RecentActivity />
+            {/* Idle hero ↔ inline chat-style analysis (client-driven) */}
+            <DashboardExperience>
+              <RecentActivity />
+            </DashboardExperience>
 
             {/* Disclaimer */}
             <p className="text-xs text-[var(--text-muted)] text-center pb-2">

@@ -15,9 +15,11 @@ const CHIPS = [
 
 interface QuickChipsProps {
   tokens?: typeof CHIPS;
+  /** When provided, selecting a chip analyzes inline instead of navigating. */
+  onSelect?: (symbol: string) => void;
 }
 
-export default function QuickChips({ tokens = CHIPS }: QuickChipsProps) {
+export default function QuickChips({ tokens = CHIPS, onSelect }: QuickChipsProps) {
   const router = useRouter();
 
   return (
@@ -25,7 +27,7 @@ export default function QuickChips({ tokens = CHIPS }: QuickChipsProps) {
       {tokens.map(({ symbol, icon: Icon, label }) => (
         <button
           key={symbol}
-          onClick={() => router.push(`/token/${symbol}`)}
+          onClick={() => (onSelect ? onSelect(symbol) : router.push(`/token/${symbol}`))}
           className={cn(
             "flex items-center gap-1.5 px-3 py-1.5 rounded-full text-sm font-medium",
             "bg-white border border-[var(--border)] text-[var(--text-secondary)]",

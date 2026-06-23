@@ -8,9 +8,16 @@ import { isBinanceUrl, parseBinanceSlug } from "@/lib/predictions";
 
 interface TokenSearchBarProps {
   className?: string;
+  /**
+   * When provided, a token query is handed to this callback instead of
+   * navigating to /token/[symbol] — lets the dashboard analyze inline. Polymarket
+   * links still navigate to /predictions.
+   */
+  onAnalyze?: (symbol: string) => void;
+  placeholder?: string;
 }
 
-export default function TokenSearchBar({ className }: TokenSearchBarProps) {
+export default function TokenSearchBar({ className, onAnalyze, placeholder }: TokenSearchBarProps) {
   const [value, setValue] = useState("");
   const router = useRouter();
 
@@ -31,8 +38,13 @@ export default function TokenSearchBar({ className }: TokenSearchBarProps) {
       }
     }
 
+    const symbol = raw.toUpperCase();
     setValue("");
-    router.push(`/token/${raw.toUpperCase()}`);
+    if (onAnalyze) {
+      onAnalyze(symbol);
+      return;
+    }
+    router.push(`/token/${symbol}`);
   }
 
   function handleKeyDown(e: KeyboardEvent<HTMLInputElement>) {
@@ -66,7 +78,7 @@ export default function TokenSearchBar({ className }: TokenSearchBarProps) {
         value={value}
         onChange={(e) => setValue(e.target.value)}
         onKeyDown={handleKeyDown}
-        placeholder="Search a token or paste a Binance Prediction link…"
+        placeholder={placeholder ?? "Search a token or paste a Binance Prediction link…"}
         className="flex-1 bg-transparent text-sm text-[var(--text-primary)] placeholder:text-[var(--text-muted)] outline-none min-w-0"
       />
 

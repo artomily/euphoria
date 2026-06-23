@@ -153,6 +153,76 @@ async function chatComplete(
   return content;
 }
 
+// ─── Streaming chat (for the floating AI assistant) ──────────────────────────
+// Unlike runStructured (which wants one JSON object), the chat widget wants
+// incremental tokens. We call the same OpenAI-compatible gateway with
+// stream:true and yield content deltas as they arrive. Surfaced as a plain text
+// ReadableStream by app/api/chat — no WebSockets (per the project's infra rules).
+
+export interface ChatMessage {
+  role: "system" | "user" | "assistant";
+  content: string;
+}
+
+interface StreamChatArgs {
+  tier: ModelTier;
+  messages: ChatMessage[];
+}
+
+export async function* streamChat({
+  tier,
+  messages,
+}: StreamChatArgs): AsyncGenerator<string> {
+  const { url, apiKey, headers } = endpoint();
+
+  const res = await fetch(url, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${apiKey}`,
+      ...headers,
+    },
+    body: JSON.stringify({
+      model: MODELS[PROVIDER][tier],
+      messages,
+      temperature: 0.4,
+      stream: true,
+    }),
+    signal: AbortSignal.timeout(REQUEST_TIMEOUT_MS),
+  });
+
+  if (!res.ok || !res.body) {
+    throw new Error(`gateway ${res.status}`);
+  }
+
+  const reader = res.body.getReader();
+  const decoder = new TextDecoder();
+  let buffer = "";
+
+  while (true) {
+    const { done, value } = await reader.read();
+    if (done) break;
+    buffer += decoder.decode(value, { stream: true });
+    const lines = buffer.split("\n");
+    buffer = lines.pop() ?? "";
+    for (const line of lines) {
+      const l = line.trim();
+      if (!l.startsWith("data:")) continue;
+      const payload = l.slice(5).trim();
+      if (!payload || payload === "[DONE]") continue;
+      try {
+        const json = JSON.parse(payload) as {
+          choices?: Array<{ delta?: { content?: string } }>;
+        };
+        const delta = json.choices?.[0]?.delta?.content;
+        if (typeof delta === "string" && delta.length > 0) yield delta;
+      } catch {
+        // ignore partial / non-JSON frames
+      }
+    }
+  }
+}
+
 interface RunStructuredArgs<T> {
   tier: ModelTier;
   schema: z.ZodType<T>;

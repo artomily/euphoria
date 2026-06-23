@@ -2,6 +2,9 @@
 
 import { z, ZodError } from "zod";
 import { orchestrate } from "@/lib/agents/orchestrator";
+import { getSession } from "@/lib/auth/session";
+import { saveAnalysis } from "@/lib/db/analyses";
+import { isDbConfigured } from "@/lib/db/client";
 import type { AnalyzeResponse, AnalyzeErrorResponse } from "@/types/api";
 
 // The Judge uses the Pro tier; give the pipeline room beyond the default.
@@ -22,6 +25,18 @@ export async function POST(request: Request): Promise<Response> {
     const { symbol } = analyzeSchema.parse(body);
 
     const result = await orchestrate(symbol);
+
+    // Persist best-effort — scoped to the verified wallet when signed in. A DB
+    // failure must never break the analysis response.
+    if (isDbConfigured()) {
+      try {
+        const session = await getSession();
+        await saveAnalysis(result, session?.address ?? null);
+      } catch (dbError) {
+        console.error("[api/analyze] persistence failed:", dbError);
+      }
+    }
+
     return Response.json({ result } satisfies AnalyzeResponse);
   } catch (error) {
     if (error instanceof ZodError) {
