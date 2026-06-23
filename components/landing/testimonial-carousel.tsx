@@ -43,9 +43,9 @@ export default function TestimonialCarousel() {
 
   return (
     <div className="flex flex-col gap-6">
-      {/* Light card on the dark section */}
-      <div className="rounded-3xl bg-[#ede9fe] p-7 sm:p-9">
-        <Quote className="w-7 h-7 text-[#6d28d9] mb-4" aria-hidden />
+      {/* White card on the soft lilac section */}
+      <div className="rounded-3xl bg-white border border-[var(--border)] shadow-[var(--shadow-card)] p-7 sm:p-9">
+        <Quote className="w-7 h-7 text-[#7c3aed] mb-4" aria-hidden />
         <blockquote className="text-lg sm:text-xl text-[#2e1065] leading-relaxed font-medium">
           {t.quote}
         </blockquote>
@@ -65,21 +65,21 @@ export default function TestimonialCarousel() {
 
       {/* Controls */}
       <div className="flex items-center justify-between">
-        <span className="text-xs font-mono text-white/50" aria-hidden>
+        <span className="text-xs font-mono text-[var(--text-muted)]" aria-hidden>
           {String(index + 1).padStart(2, "0")} / {String(TESTIMONIALS.length).padStart(2, "0")}
         </span>
         <div className="flex items-center gap-2">
           <button
             onClick={() => go(-1)}
             aria-label="Previous testimonial"
-            className="flex items-center justify-center w-10 h-10 rounded-full border border-white/20 text-white/80 hover:bg-white/10 hover:text-white motion-safe:transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/60"
+            className="flex items-center justify-center w-10 h-10 rounded-full border border-[var(--border)] bg-white text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--bg-app)] motion-safe:transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent-purple"
           >
             <ArrowLeft size={16} aria-hidden />
           </button>
           <button
             onClick={() => go(1)}
             aria-label="Next testimonial"
-            className="flex items-center justify-center w-10 h-10 rounded-full border border-white/20 text-white/80 hover:bg-white/10 hover:text-white motion-safe:transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/60"
+            className="flex items-center justify-center w-10 h-10 rounded-full border border-[var(--border)] bg-white text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--bg-app)] motion-safe:transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent-purple"
           >
             <ArrowRight size={16} aria-hidden />
           </button>

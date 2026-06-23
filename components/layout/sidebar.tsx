@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import Image from "next/image";
 import { usePathname } from "next/navigation";
 import {
   LayoutDashboard,
@@ -45,9 +46,7 @@ export default function Sidebar() {
         href="/"
         className="flex items-center gap-2.5 h-14 px-4 border-b border-[var(--border)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-400/40"
       >
-        <div className="w-7 h-7 rounded-lg bg-gradient-to-br from-blue-500 to-violet-500 flex items-center justify-center shrink-0">
-          <span className="text-white text-xs font-bold">E</span>
-        </div>
+        <Image src="/euphoria-logo.png" alt="Euphoria logo" width={28} height={28} className="w-7 h-7 rounded-lg shrink-0" />
         <span className="text-sm font-semibold text-[var(--text-primary)]">Euphoria</span>
       </Link>
 
