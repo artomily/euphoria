@@ -98,7 +98,7 @@ export default function DashboardExperience({ children }: DashboardExperiencePro
         >
           <Greeting />
 
-          <div className="flex-1 flex items-center justify-center min-h-[280px] max-h-[420px]">
+          <div className="flex-1 flex items-center justify-center min-h-70 max-h-105">
             <FomoOrb
               level="ready"
               label="AI is ready"
@@ -126,12 +126,12 @@ export default function DashboardExperience({ children }: DashboardExperiencePro
           {/* Conversation header */}
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
-              <span className="font-mono text-lg font-semibold text-[var(--text-primary)]">${symbol}</span>
+              <span className="font-mono text-lg font-semibold text-(--text-primary)">${symbol}</span>
               {result && <Badge variant="narrative">{result.narrative.narrative}</Badge>}
             </div>
             <button
               onClick={reset}
-              className="flex items-center gap-1.5 text-xs text-[var(--text-secondary)] hover:text-[var(--text-primary)] transition-colors rounded-lg px-2.5 py-1.5 hover:bg-black/[0.04]"
+              className="flex items-center gap-1.5 text-xs text-text-secondary hover:text-(--text-primary) transition-colors rounded-lg px-2.5 py-1.5 hover:bg-black/4"
             >
               <Plus className="w-3.5 h-3.5" aria-hidden />
               New analysis
@@ -149,7 +149,7 @@ export default function DashboardExperience({ children }: DashboardExperiencePro
 
           {phase === "error" && (
             <AgentMessage colorVar="--agent-reverse" icon={<AlertTriangle className="w-4 h-4" />} name="Euphoria">
-              <p className="text-sm text-[var(--text-secondary)] leading-relaxed">{errorMsg}</p>
+              <p className="text-sm text-text-secondary leading-relaxed">{errorMsg}</p>
               <button
                 onClick={() => analyze(symbol)}
                 className="mt-3 text-xs font-medium text-accent-emerald hover:underline"
@@ -186,12 +186,12 @@ function ThinkingBubble() {
     <div className="flex gap-3">
       <Avatar colorVar="--agent-judge" icon={<Sparkles className="w-3.5 h-3.5" />} />
       <div className="flex flex-col gap-2">
-        <div className="flex items-center gap-2 rounded-2xl rounded-tl-sm bg-white border border-[var(--border)] shadow-[var(--shadow-card)] px-4 py-3">
+        <div className="flex items-center gap-2 rounded-2xl rounded-tl-sm bg-white border border-border shadow-(--shadow-card) px-4 py-3">
           <span className="flex gap-1" aria-hidden>
             {[0, 1, 2].map((i) => (
               <motion.span
                 key={i}
-                className="w-1.5 h-1.5 rounded-full bg-[var(--text-muted)]"
+                className="w-1.5 h-1.5 rounded-full bg-text-muted"
                 animate={{ opacity: [0.3, 1, 0.3] }}
                 transition={{ duration: 1.1, repeat: Infinity, delay: i * 0.18 }}
               />
@@ -204,7 +204,7 @@ function ThinkingBubble() {
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -4 }}
               transition={{ duration: 0.25 }}
-              className="text-sm text-[var(--text-secondary)]"
+              className="text-sm text-text-secondary"
             >
               {THINKING_STEPS[step]}
             </motion.span>
@@ -254,9 +254,9 @@ function ResultFeed({ result }: { result: AnalysisResult }) {
         <AgentMessage colorVar="--agent-narrative" icon={<Brain className="w-4 h-4" />} name="Narrative · The story">
           <div className="flex items-center gap-2 mb-2">
             <Badge variant="narrative">{narrative.narrative}</Badge>
-            <span className="font-mono text-xs text-[var(--text-secondary)]">{narrative.confidence}% confident</span>
+            <span className="font-mono text-xs text-text-secondary">{narrative.confidence}% confident</span>
           </div>
-          <p className="text-sm text-[var(--text-secondary)] leading-relaxed">{narrative.explanation}</p>
+          <p className="text-sm text-text-secondary leading-relaxed">{narrative.explanation}</p>
         </AgentMessage>
       </motion.div>
 
@@ -265,7 +265,7 @@ function ResultFeed({ result }: { result: AnalysisResult }) {
         <AgentMessage colorVar="--agent-crowd" icon={<Users className="w-4 h-4" />} name="Crowd · FOMO (bull)">
           <div className="flex items-baseline gap-2 mb-2">
             <CountUp value={crowd.fomo_score} className="text-3xl font-mono font-semibold text-orange-500" />
-            <span className="text-xs text-[var(--text-muted)] font-mono">/100</span>
+            <span className="text-xs text-text-muted font-mono">/100</span>
             <span className="text-sm font-medium text-orange-500 uppercase">{crowd.fomo_level}</span>
           </div>
           <DriverList items={crowd.sentiment_drivers} marker="›" markerClass="text-orange-500" />
@@ -276,7 +276,7 @@ function ResultFeed({ result }: { result: AnalysisResult }) {
         <AgentMessage colorVar="--agent-reverse" icon={<Shield className="w-4 h-4" />} name="Reverse · Bubble risk (bear)">
           <div className="flex items-baseline gap-2 mb-2">
             <CountUp value={reverse.bubble_probability} className="text-3xl font-mono font-semibold text-[var(--text-primary)]" />
-            <span className="text-xs text-[var(--text-muted)] font-mono">% risk</span>
+            <span className="text-xs text-text-muted font-mono">% risk</span>
             <span className="text-sm font-medium text-signal-sell uppercase">{reverse.bubble_risk}</span>
           </div>
           <DriverList items={reverse.red_flags} icon={<AlertTriangle className="w-3 h-3 text-signal-sell mt-0.5 shrink-0" />} />
