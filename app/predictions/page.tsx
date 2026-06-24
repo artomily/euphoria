@@ -45,7 +45,7 @@ export default async function PredictionsPage({ searchParams }: PredictionsPageP
       <div className="flex flex-col flex-1 min-w-0 overflow-hidden">
         <Header title="Prediction FOMO" />
         <main className="flex-1 overflow-y-auto px-6 py-6" id="main-content">
-          <div className="max-w-3xl mx-auto space-y-6">
+          <div className="space-y-6">
             {/* Intro */}
             <div>
               <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-yellow-50 border border-yellow-200 mb-3">

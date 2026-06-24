@@ -121,7 +121,7 @@ export default async function TokenPage({ params }: TokenPageProps) {
       <div className="flex flex-col flex-1 min-w-0 overflow-hidden">
         <Header title={`Token Analysis`} />
         <main className="flex-1 overflow-y-auto px-6 py-6" id="main-content">
-          <div className="max-w-5xl mx-auto space-y-5">
+          <div className="space-y-5">
 
             {/* Back + token header */}
             <div>

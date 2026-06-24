@@ -78,7 +78,7 @@ export default async function HistoryPage() {
       <div className="flex flex-col flex-1 min-w-0 overflow-hidden">
         <Header title="Analysis History" />
         <main className="flex-1 overflow-y-auto px-6 py-6" id="main-content">
-          <div className="max-w-5xl mx-auto space-y-5">
+          <div className="space-y-5">
             <div>
               <h1 className="text-lg font-semibold text-text-primary flex items-center gap-2">
                 <Clock className="w-4 h-4 text-accent-emerald" aria-hidden />

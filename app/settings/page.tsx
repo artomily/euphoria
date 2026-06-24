@@ -140,7 +140,7 @@ export default function SettingsPage() {
       <div className="flex flex-col flex-1 min-w-0 overflow-hidden">
         <Header title="Settings" />
         <main className="flex-1 overflow-y-auto px-6 py-6" id="main-content">
-          <div className="max-w-2xl mx-auto space-y-8">
+          <div className="space-y-8">
 
             {/* Page header */}
             <div>

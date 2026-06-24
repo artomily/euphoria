@@ -11,8 +11,10 @@ import {
   History,
   Settings,
   ShieldCheck,
+  PanelLeftClose,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { useUI } from "./ui-context";
 
 const navSections: {
   title: string;
@@ -38,17 +40,33 @@ const navSections: {
 
 export default function Sidebar() {
   const pathname = usePathname();
+  const { sidebarCollapsed, toggleSidebar } = useUI();
+
+  // When collapsed, the sidebar unmounts entirely so the main content
+  // (flex-1) expands to fullscreen. The header exposes a button to bring it back.
+  if (sidebarCollapsed) return null;
 
   return (
     <aside className="hidden md:flex flex-col w-56 shrink-0 bg-[var(--bg-surface)] border-r border-[var(--border)] h-full">
-      {/* Wordmark */}
-      <Link
-        href="/"
-        className="flex items-center gap-2.5 h-14 px-4 border-b border-[var(--border)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-400/40"
-      >
-        <Image src="/euphoria-logo.png" alt="Euphoria logo" width={28} height={28} className="w-7 h-7 rounded-lg shrink-0" />
-        <span className="text-sm font-semibold text-[var(--text-primary)]">Euphoria</span>
-      </Link>
+      {/* Wordmark + collapse */}
+      <div className="flex items-center gap-2 h-14 px-4 border-b border-[var(--border)]">
+        <Link
+          href="/"
+          className="flex items-center gap-2.5 flex-1 min-w-0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-400/40 rounded"
+        >
+          <Image src="/euphoria-logo.png" alt="Euphoria logo" width={28} height={28} className="w-7 h-7 rounded-lg shrink-0" />
+          <span className="text-sm font-semibold text-[var(--text-primary)]">Euphoria</span>
+        </Link>
+        <button
+          type="button"
+          onClick={toggleSidebar}
+          aria-label="Hide sidebar"
+          title="Hide sidebar"
+          className="flex items-center justify-center w-7 h-7 shrink-0 rounded-lg text-[var(--text-muted)] hover:text-[var(--text-primary)] hover:bg-[var(--bg-elevated)] transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-400/40"
+        >
+          <PanelLeftClose size={17} aria-hidden />
+        </button>
+      </div>
 
       {/* Nav */}
       <nav className="flex flex-col gap-5 py-4 px-3 flex-1 overflow-y-auto">

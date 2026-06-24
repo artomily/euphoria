@@ -4,81 +4,72 @@ import { TrendingUp, TrendingDown, Activity } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import Sidebar from "@/components/layout/sidebar";
 import { Header } from "@/components/layout/header";
+import { computeNarrativeHeat } from "@/lib/radar";
 
 export const metadata: Metadata = { title: "FOMO Radar" };
 
+// Heat is recomputed from live market data every 10 minutes.
+export const revalidate = 600;
+
+// Narrative definitions — the basket and copy are curated; heat / 24h change /
+// trend are derived live from each basket's real market data (see lib/radar.ts).
+// `baselineHeat` is only used as a fallback when no token in the basket resolves.
 const NARRATIVES = [
   {
     name: "AI & Machine Learning",
     category: "AI" as const,
-    heat: 87,
-    tokens: ["FET", "AGIX", "OCEAN", "NMR"],
-    trend: "up",
-    summary: "AI narrative at peak heat. Multiple tokens hitting all-time highs on BNB Chain. Institutional inflows detected.",
-    change24h: +14,
+    tokens: ["FET", "RENDER", "TAO", "NMR"],
+    summary: "AI agents and compute networks remain a primary attention magnet. Heat tracks live momentum across the sector's majors.",
+    baselineHeat: 70,
   },
   {
     name: "DeFi Protocols",
     category: "DeFi" as const,
-    heat: 74,
-    tokens: ["CAKE", "BSW", "XVS", "ALPACA"],
-    trend: "up",
-    summary: "DeFi TVL recovering strongly. PancakeSwap v3 driving volume. Yield farming narratives resurgent.",
-    change24h: +8,
+    tokens: ["CAKE", "UNI", "AAVE", "XVS"],
+    summary: "DeFi bluechips and BNB Chain DEX leaders. PancakeSwap volume is the local pulse for on-chain yield appetite.",
+    baselineHeat: 60,
   },
   {
     name: "RWA Tokenization",
     category: "RWA" as const,
-    heat: 68,
-    tokens: ["ONDO", "RIO", "CFG", "MPX"],
-    trend: "up",
-    summary: "Real-world assets gaining traction as institutional capital seeks on-chain yield products.",
-    change24h: +5,
+    tokens: ["ONDO", "PENDLE", "CFG"],
+    summary: "Real-world assets as institutional capital seeks on-chain yield products. Heat reflects live flows into the basket.",
+    baselineHeat: 55,
   },
   {
     name: "Memecoins",
     category: "Memecoin" as const,
-    heat: 61,
     tokens: ["PEPE", "FLOKI", "BONK", "SHIB"],
-    trend: "down",
-    summary: "Memecoin enthusiasm cooling after recent rally. Retail sentiment shifting toward fundamentals.",
-    change24h: -3,
+    summary: "Retail risk appetite barometer. Memecoin momentum swings fastest with the crowd's mood.",
+    baselineHeat: 58,
   },
   {
     name: "DePIN",
     category: "DePIN" as const,
-    heat: 55,
-    tokens: ["IOTX", "HNT", "MOBILE", "FIL"],
-    trend: "up",
-    summary: "Decentralized infrastructure narrative building quietly. Undervalued vs. AI sector.",
-    change24h: +2,
+    tokens: ["RENDER", "HNT", "IOTX", "FIL"],
+    summary: "Decentralized physical infrastructure. A quieter narrative whose heat builds on real network usage.",
+    baselineHeat: 48,
   },
   {
     name: "Gaming & Metaverse",
     category: "Gaming" as const,
-    heat: 43,
     tokens: ["AXS", "SAND", "MANA", "GALA"],
-    trend: "down",
-    summary: "Gaming season has not yet arrived. Waiting for major title launches to catalyze narrative.",
-    change24h: -6,
+    summary: "Gaming tokens track speculative cycles ahead of major title launches. Heat shows current crowd energy.",
+    baselineHeat: 40,
   },
   {
     name: "Layer 2 Scaling",
     category: "Layer2" as const,
-    heat: 38,
-    tokens: ["ARB", "OP", "MATIC", "METIS"],
-    trend: "down",
-    summary: "L2 tokens underperforming as ETH ecosystem attention consolidates around blob scaling.",
-    change24h: -4,
+    tokens: ["ARB", "OP", "MATIC", "STRK"],
+    summary: "L2 scaling tokens. Heat moves with rollup attention and the broader ETH ecosystem rotation.",
+    baselineHeat: 38,
   },
   {
     name: "Layer 1 Chains",
     category: "Layer1" as const,
-    heat: 31,
     tokens: ["BNB", "SOL", "AVAX", "ATOM"],
-    trend: "down",
-    summary: "L1 rotation has paused. Capital consolidating in yield-bearing assets and AI narratives.",
-    change24h: -9,
+    summary: "Major Layer 1 chains. Heat reflects live capital rotation among the large-cap base assets.",
+    baselineHeat: 45,
   },
 ];
 
@@ -111,10 +102,21 @@ function HeatLabel({ score }: { score: number }) {
   return <span className="text-emerald-400 font-mono text-xs">Calm</span>;
 }
 
-export default function RadarPage() {
+export default async function RadarPage() {
+  // Enrich each narrative with live, market-derived heat, then rank by heat.
+  const enriched = (
+    await Promise.all(
+      NARRATIVES.map(async (n) => ({
+        ...n,
+        ...(await computeNarrativeHeat(n.tokens, n.baselineHeat)),
+      })),
+    )
+  ).sort((a, b) => b.heat - a.heat);
+
   const globalFomo = Math.round(
-    NARRATIVES.reduce((sum, n) => sum + n.heat, 0) / NARRATIVES.length
+    enriched.reduce((sum, n) => sum + n.heat, 0) / enriched.length,
   );
+  const hotSector = enriched[0];
 
   return (
     <div className="flex h-screen overflow-hidden bg-bg-base">
@@ -122,7 +124,7 @@ export default function RadarPage() {
       <div className="flex flex-col flex-1 min-w-0 overflow-hidden">
         <Header title="FOMO Radar" />
         <main className="flex-1 overflow-y-auto px-6 py-6" id="main-content">
-          <div className="max-w-5xl mx-auto space-y-6">
+          <div className="space-y-6">
 
             {/* Page header */}
             <div className="flex flex-wrap items-start justify-between gap-4">
@@ -132,7 +134,7 @@ export default function RadarPage() {
                   FOMO Radar
                 </h1>
                 <p className="text-sm text-text-secondary mt-0.5">
-                  Live narrative heat across 8 market themes, sorted by crowd energy.
+                  Live narrative heat across {enriched.length} market themes, ranked by crowd energy.
                 </p>
               </div>
               <div className="glass rounded-xl px-4 py-3 flex items-center gap-4">
@@ -146,14 +148,14 @@ export default function RadarPage() {
                 <div className="w-px h-8 bg-border-subtle" aria-hidden />
                 <div>
                   <div className="text-[10px] text-text-muted uppercase tracking-widest mb-0.5">Hot Sector</div>
-                  <Badge variant="narrative">AI</Badge>
+                  <Badge variant="narrative">{hotSector.category}</Badge>
                 </div>
               </div>
             </div>
 
             {/* Narrative grid */}
-            <div className="grid sm:grid-cols-2 gap-4" role="list" aria-label="Narrative heat cards">
-              {NARRATIVES.map(({ name, heat, tokens, trend, summary, change24h }) => (
+            <div className="grid sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4" role="list" aria-label="Narrative heat cards">
+              {enriched.map(({ name, heat, tokens, trend, summary, change24h }) => (
                 <article
                   key={name}
                   className="glass rounded-xl p-5 hover:border-white/[0.12] motion-safe:transition-colors motion-safe:duration-150"

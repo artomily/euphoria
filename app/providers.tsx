@@ -6,6 +6,7 @@ import { type State, WagmiProvider } from "wagmi";
 
 import { getConfig } from "@/lib/wagmi/config";
 import { AiChatWidget } from "@/components/chat/ai-chat-widget";
+import { UIProvider } from "@/components/layout/ui-context";
 
 interface ProvidersProps {
   children: ReactNode;
@@ -19,8 +20,10 @@ export function Providers({ children, initialState }: ProvidersProps) {
   return (
     <WagmiProvider config={config} initialState={initialState}>
       <QueryClientProvider client={queryClient}>
-        {children}
-        <AiChatWidget />
+        <UIProvider>
+          {children}
+          <AiChatWidget />
+        </UIProvider>
       </QueryClientProvider>
     </WagmiProvider>
   );

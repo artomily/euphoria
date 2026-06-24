@@ -116,7 +116,7 @@ export default function DashboardExperience({ children }: DashboardExperiencePro
             />
           </div>
 
-          <div className="flex flex-col gap-3 max-w-2xl mx-auto w-full">
+          <div className="flex flex-col gap-3 w-full">
             <QuickChips onSelect={analyze} />
             <TokenSearchBar onAnalyze={analyze} />
           </div>
@@ -129,7 +129,7 @@ export default function DashboardExperience({ children }: DashboardExperiencePro
           initial={{ opacity: 0, y: 16 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.35, ease: [0, 0, 0.2, 1] }}
-          className="flex flex-col gap-5 max-w-3xl mx-auto w-full"
+          className="flex flex-col gap-5 w-full"
         >
           <div ref={feedTopRef} />
 
