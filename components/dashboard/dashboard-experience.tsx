@@ -108,7 +108,7 @@ export default function DashboardExperience({ children }: DashboardExperiencePro
         >
           <Greeting />
 
-          <div className="flex-1 flex items-center justify-center min-h-[280px] max-h-[420px]">
+          <div className="flex-1 flex items-center justify-center min-h-70 max-h-105">
             <FomoOrb
               level="ready"
               label="AI is ready"
@@ -146,7 +146,7 @@ export default function DashboardExperience({ children }: DashboardExperiencePro
             </div>
             <button
               onClick={reset}
-              className="flex items-center gap-1.5 text-xs text-[var(--text-secondary)] hover:text-[var(--text-primary)] transition-colors rounded-lg px-2.5 py-1.5 hover:bg-black/[0.04]"
+              className="flex items-center gap-1.5 text-xs text-text-secondary hover:text-(--text-primary) transition-colors rounded-lg px-2.5 py-1.5 hover:bg-black/4"
             >
               <Plus className="w-3.5 h-3.5" aria-hidden />
               New analysis
