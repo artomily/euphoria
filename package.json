@@ -1,7 +1,15 @@
 {
   "name": "@artomily/euphoria",
-  "version": "3.5.1",
+  "version": "3.5.2",
   "private": false,
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/artomily/euphoria.git"
+  },
+  "bugs": {
+    "url": "https://github.com/artomily/euphoria/issues"
+  },
+  "homepage": "https://github.com/artomily/euphoria#readme",
   "scripts": {
     "dev": "next dev --port 3005",
     "build": "next build",
