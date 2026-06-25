@@ -61,10 +61,17 @@ export default function DashboardExperience({ children }: DashboardExperiencePro
   const [result, setResult] = useState<AnalysisResult | null>(null);
   const [errorMsg, setErrorMsg] = useState("");
   const feedTopRef = useRef<HTMLDivElement>(null);
+  // Id of the most recent analysis. Each token takes ~30s, so a user can kick
+  // off a second analysis (e.g. clicking another chip during the idle→analyzing
+  // transition) before the first resolves. Without this guard the slower, stale
+  // response could overwrite the newer one — showing the wrong token's data.
+  const latestRequestRef = useRef(0);
 
   const analyze = useCallback(async (raw: string) => {
     const sym = raw.trim().toUpperCase().replace(/[^A-Z0-9]/g, "").slice(0, 15);
     if (!sym) return;
+
+    const requestId = ++latestRequestRef.current;
 
     setSymbol(sym);
     setResult(null);
@@ -80,15 +87,20 @@ export default function DashboardExperience({ children }: DashboardExperiencePro
       });
       if (!res.ok) throw new Error("Analysis failed");
       const { result: data } = (await res.json()) as { result: AnalysisResult };
+      // A newer analysis has superseded this one — drop the stale response.
+      if (latestRequestRef.current !== requestId) return;
       setResult(data);
       setPhase("result");
     } catch {
+      if (latestRequestRef.current !== requestId) return;
       setErrorMsg("Couldn't complete the analysis. The market data or model may be unavailable — try again.");
       setPhase("error");
     }
   }, []);
 
   const reset = () => {
+    // Invalidate any in-flight analysis so its late response can't repopulate.
+    latestRequestRef.current++;
     setPhase("idle");
     setResult(null);
     setSymbol("");
