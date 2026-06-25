@@ -84,7 +84,18 @@ export function WalletButton() {
 
   const handleCopy = async () => {
     if (!address) return;
-    await navigator.clipboard.writeText(address);
+    try {
+      await navigator.clipboard.writeText(address);
+    } catch {
+      // Fallback for when clipboard API is unavailable or permission denied.
+      const el = document.createElement("textarea");
+      el.value = address;
+      el.style.cssText = "position:fixed;opacity:0;pointer-events:none";
+      document.body.appendChild(el);
+      el.select();
+      document.execCommand("copy");
+      document.body.removeChild(el);
+    }
     setCopied(true);
     setTimeout(() => setCopied(false), 1500);
   };
